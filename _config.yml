@@ -20,8 +20,8 @@ disqus_shortname: #disqus shortname
 
 user:
   name: OSS-7
-  pic: /assets/img/cat.jpg
-  picAlt: "catbook"
+  pic: /assets/img/KakaoTalk_20201115_231902017.png
+  picAlt: "SKKU"
   job: OSS TEAM PROJECT
  # aboutme: true # comment this out if you don't need the 'about' page.
 
