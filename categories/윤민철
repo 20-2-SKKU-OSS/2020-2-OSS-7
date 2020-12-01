@@ -1,6 +1,6 @@
 ---
 layout: page
-type: 
+type: YMC
 ---
 
 {% include archive.html %}
