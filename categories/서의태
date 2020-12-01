@@ -1,6 +1,6 @@
 ---
 layout: page
-type: 
+type: S
 ---
 
 {% include archive.html %}
