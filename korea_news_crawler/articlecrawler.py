@@ -41,7 +41,6 @@ class ArticleCrawler(object):
         for key, date in zip(self.date, args):
             self.date[key] = date
         print(self.date)
-
     @staticmethod
     def make_news_page_url(category_url, start_year, end_year, start_month, end_month):
         made_urls = []
@@ -169,7 +168,44 @@ class ArticleCrawler(object):
                     del request_content, document_content
                     pass
         writer.close()
+    def press_crawling(self, oid=215, aid=100):
+        headers = {'User-Agent':'Mozilla/5.0'}
+        
+        url = 'https://sports.news.naver.com/news.nhn?'
+        oid = 'oid='+str(oid)  
+        writer = Writer(category_name=category_name, date=self.date)
+        #여기서 입력받은 oid(언론사 id)를 지정할 거에요
+        for i in range(1,aid):
+            aid = str(i)
+            aid_length = len(aid)
+            aid = '&aid='+'0'*(10-aid_length) + aid
+            url1 = url + oid + aid
+            b = requests.get(url1)
+            print(url1)
+            document = BeautifulSoup(b.content, 'html.parser')
+            tag_content = document.find_all('div', {'id': 'newsEndContents'})
+            text_sentence = '' 
+            text_sentence = text_sentence + ArticleParser.clear_content(str(tag_content[0].find_all(text=True)))
+            headline = '' 
+            headline = headline + ArticleParser.clear_headline(str(document.find_all('h4', {'class':'title'})))
+            article_info = document.find_all('div',{'class':'info'})
+            #여기서 article info 정제 작업을 하며 좋을 것 같아요.
+            print(text_sentence)
+        writer.close()
 
+        '''
+        b = requests.get('https://sports.news.naver.com/news.nhn?oid=215&aid=0000918970',headers = headers)
+        document = BeautifulSoup(b.content, 'html.parser')
+        tag_content = document.find_all('div', {'id': 'newsEndContents'})
+        text_sentence = '' #기사 본문입니다.
+        text_sentence = text_sentence + ArticleParser.clear_content(str(tag_content[0].find_all(text=True)))
+        headline = '' #기사 제목입니다.
+        headline = headline + ArticleParser.clear_headline(str(document.find_all('h4', {'class':'title'})))
+        article_info = document.find_all('div',{'class':'info'}) #기사 정보입니다.
+        article_time = '2020.11.30. 오전 08:05'
+        article_press = 'sbs스포츠'
+        article_url = 'https://sports.news.naver.com/news.nhn?oid=215&aid=0000918970'
+        '''
     def start(self):
         # MultiProcess 크롤링 시작
         for category_name in self.selected_categories:
@@ -179,6 +215,10 @@ class ArticleCrawler(object):
 
 if __name__ == "__main__":
     Crawler = ArticleCrawler()
+    '''
     Crawler.set_category("생활문화", "IT과학")
     Crawler.set_date_range(2017, 1, 2018, 4)
     Crawler.start()
+    '''
+    #언론사별 크롤링 실행 함수입니다. 일단 oid aid는 default값을 설정했어요
+    Crawler.press_crawling()
