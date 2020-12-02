@@ -7,6 +7,7 @@ from multiprocessing import Process
 from korea_news_crawler.exceptions import *
 from korea_news_crawler.articleparser import ArticleParser
 from korea_news_crawler.writer import Writer
+from writer1 import Writer_press
 import os
 import platform
 import calendar
@@ -168,29 +169,32 @@ class ArticleCrawler(object):
                     del request_content, document_content
                     pass
         writer.close()
-    def press_crawling(self, oid=215, aid=100):
+    def press_crawling(self, oid=215, aid=3):
         headers = {'User-Agent':'Mozilla/5.0'}
-        
+        writer = Writer_press(category_name = "aid123")
         url = 'https://sports.news.naver.com/news.nhn?'
         oid = 'oid='+str(oid)  
-        writer = Writer(category_name=category_name, date=self.date)
         #여기서 입력받은 oid(언론사 id)를 지정할 거에요
         for i in range(1,aid):
+            print(i)
             aid = str(i)
             aid_length = len(aid)
             aid = '&aid='+'0'*(10-aid_length) + aid
             url1 = url + oid + aid
-            b = requests.get(url1)
+            b = requests.get(url1,headers=headers)
             print(url1)
             document = BeautifulSoup(b.content, 'html.parser')
             tag_content = document.find_all('div', {'id': 'newsEndContents'})
-            text_sentence = '' 
+            
+            text_sentence = ''
             text_sentence = text_sentence + ArticleParser.clear_content(str(tag_content[0].find_all(text=True)))
-            headline = '' 
-            headline = headline + ArticleParser.clear_headline(str(document.find_all('h4', {'class':'title'})))
+            print(text_sentence)
+            headline = ''
+            tag_headline = document.find_all('h4', {'class':'title'})
+            headline = headline + ArticleParser.clear_headline(str(tag_headline[0].find_all(text=True)))
             article_info = document.find_all('div',{'class':'info'})
             #여기서 article info 정제 작업을 하며 좋을 것 같아요.
-            print(text_sentence)
+            writer.wcsv.writerow([headline,text_sentence,url1])
         writer.close()
 
         '''
