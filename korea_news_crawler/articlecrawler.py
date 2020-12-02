@@ -19,6 +19,17 @@ import calendar
 import requests
 import re
 
+def get_oid():
+        oid = ['001','005','009','014','629','018','021','022','047','052','055','065',' 469','088','108','109','117','119','139','144','236','277','311','343','347','356', '382','396','398','410','413','417','421','436','439','442','445','477','450','468']
+        print("1.연합뉴스\n2.국민일보\n3.매일경제 \n4.파이낸셜뉴스\n5.더팩트\n6.이데일리\n7.문화일보\n8.세계일보\n9. 오마이뉴스\n10.YTN\n11.SBS\n12.점프볼\n13.한국일보\n14.매일신문\n15.스타뉴스") 
+        print("16.OSEN\n17.마이데일리\n18.데일리안\n19.스포탈코리아\n20.스포츠경향\n21.포모스\n22.아시아경제\n23.엑스포츠뉴스\n24.베스트일레븐\n25.데일리e스포츠\n26.게임메카\n27.스포츠동아\n28.스포츠월드\n29.루키\n30.MK스포츠")
+        print("31.인터풋볼\n32.머니S\n33.뉴스1\n34.풋볼리스트\n35.디스이즈게임\n36.인벤\n37.윈터뉴스\n38.스포티비뉴스\n39.STN 스포츠\n40.스포츠서울\n")
+        uinput = input("원하는 언론사 번호를 입력하세요: ")
+        oid_num = int(uinput)
+        result = oid[oid_num-1]
+        #print(result)
+        return result
+
 
 class ArticleCrawler(object):
     def __init__(self):
@@ -186,7 +197,8 @@ class ArticleCrawler(object):
         headers = {'User-Agent':'Mozilla/5.0'}
         writer = Writer_press(category_name = "aid123")
         url = 'https://sports.news.naver.com/news.nhn?'
-        oid = 'oid='+str(oid)  
+        oid_num = get_oid()
+        oid = 'oid='+ oid_num
         #여기서 입력받은 oid(언론사 id)를 지정할 거에요
         for i in tqdm(range(1,aid), desc="Crawling rate", mininterval=0.01):
             #print(i)
@@ -198,7 +210,19 @@ class ArticleCrawler(object):
             #print(url1)
             document = BeautifulSoup(b.content, 'html.parser')
             tag_content = document.find_all('div', {'id': 'newsEndContents'})
-            
+
+            if len(tag_content) == 0 :
+                 aid = '1000';
+                 aid_length = len(aid)
+                 aid = '&aid='+'0'*(10-aid_length) + aid
+                 #print(aid)
+                 url1 = url + oid + aid
+                 b = requests.get(url1,headers=headers)
+                 #print(url1)
+                 document = BeautifulSoup(b.content, 'html.parser')
+                 tag_content = document.find_all('div', {'id': 'newsEndContents'})
+
+            #print(url1)
             text_sentence = ''
             text_sentence = text_sentence + ArticleParser.clear_content(str(tag_content[0].find_all(text=True)))
             #print(text_sentence)
@@ -246,4 +270,4 @@ if __name__ == "__main__":
     #언론사별 크롤링 실행 함수입니다. 일단 oid aid는 default값을 설정했어요
     #Crawler.start()
     Crawler.press_crawling()
-    '''
+    
