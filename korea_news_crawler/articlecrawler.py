@@ -6,9 +6,11 @@ from bs4 import BeautifulSoup
 from tqdm import tqdm
 from tqdm import trange
 from multiprocessing import Process
+
 from exceptions import *
 from articleparser import ArticleParser
 from writer import Writer
+
 from writer1 import Writer_press
 
 import os
@@ -50,7 +52,9 @@ class ArticleCrawler(object):
     @staticmethod
     def make_news_page_url(category_url, start_year, end_year, start_month, end_month):
         made_urls = []
+        
         for year in range(start_year, end_year + 1):
+            
             if start_year == end_year:
                 year_startmonth = start_month
                 year_endmonth = end_month
@@ -66,6 +70,7 @@ class ArticleCrawler(object):
                     year_endmonth = 12
             
             for month in range(year_startmonth, year_endmonth + 1):
+                
                 for month_day in range(1, calendar.monthrange(year, month)[1] + 1):
                     if len(str(month)) == 1:
                         month = "0" + str(month)
@@ -77,7 +82,9 @@ class ArticleCrawler(object):
 
                     # totalpage는 네이버 페이지 구조를 이용해서 page=10000으로 지정해 totalpage를 알아냄
                     # page=10000을 입력할 경우 페이지가 존재하지 않기 때문에 page=totalpage로 이동 됨 (Redirect)
+                    
                     totalpage = ArticleParser.find_news_totalpage(url + "&page=10000")
+                    
                     for page in range(1, totalpage + 1):
                         made_urls.append(url + "&page=" + str(page))
         return made_urls
@@ -99,7 +106,7 @@ class ArticleCrawler(object):
         print(category_name + " PID: " + str(os.getpid()))    
 
         writer = Writer(category_name=category_name, date=self.date)
-
+        
         # 기사 URL 형식
         url = "http://news.naver.com/main/list.nhn?mode=LSD&mid=sec&sid1=" + str(self.categories.get(category_name)) + "&date="
 
@@ -109,7 +116,7 @@ class ArticleCrawler(object):
         print("The crawler starts")
 
         for URL in day_urls:
-
+            
             regex = re.compile("date=(\d+)")
             news_date = regex.findall(URL)[0]
 
@@ -222,17 +229,21 @@ class ArticleCrawler(object):
         for category_name in self.selected_categories:
             proc = Process(target=self.crawling, args=(category_name,))
             proc.start()
+            self.crawling("생활문화")
 
 
 if __name__ == "__main__":
     Crawler = ArticleCrawler()
+
     Crawler.set_category("생활문화")
     Crawler.set_date_range(2020, 9, 2020, 10)
     '''
+
     Crawler.set_category("생활문화", "IT과학")
-    Crawler.set_date_range(2017, 1, 2018, 4)
+    Crawler.set_date_range(2017, 1, 2017, 4)
     Crawler.start()
     '''
     #언론사별 크롤링 실행 함수입니다. 일단 oid aid는 default값을 설정했어요
     #Crawler.start()
     Crawler.press_crawling()
+    '''
