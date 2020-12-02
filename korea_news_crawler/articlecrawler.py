@@ -3,11 +3,14 @@
 
 from time import sleep
 from bs4 import BeautifulSoup
+from tqdm import tqdm
+from tqdm import trange
 from multiprocessing import Process
-from korea_news_crawler.exceptions import *
-from korea_news_crawler.articleparser import ArticleParser
-from korea_news_crawler.writer import Writer
+from exceptions import *
+from articleparser import ArticleParser
+from writer import Writer
 from writer1 import Writer_press
+
 import os
 import platform
 import calendar
@@ -23,12 +26,14 @@ class ArticleCrawler(object):
         self.date = {'start_year': 0, 'start_month': 0, 'end_year': 0, 'end_month': 0}
         self.user_operating_system = str(platform.system())
 
+    #크롤링할 카테고리 설정
     def set_category(self, *args):
         for key in args:
             if self.categories.get(key) is None:
                 raise InvalidCategory(key)
         self.selected_categories = args
 
+    #이상한 날짜가 들어온 경우
     def set_date_range(self, start_year, start_month, end_year, end_month):
         args = [start_year, start_month, end_year, end_month]
         if start_year > end_year:
@@ -79,10 +84,11 @@ class ArticleCrawler(object):
 
     @staticmethod
     def get_url_data(url, max_tries=10):
+        headers = {'User-Agent':'Mozilla/5.0'}
         remaining_tries = int(max_tries)
         while remaining_tries > 0:
             try:
-                return requests.get(url)
+                return requests.get(url, headers=headers)
             except requests.exceptions:
                 sleep(60)
             remaining_tries = remaining_tries - 1
@@ -169,32 +175,33 @@ class ArticleCrawler(object):
                     del request_content, document_content
                     pass
         writer.close()
-    def press_crawling(self, oid=215, aid=3):
+    def press_crawling(self, oid=215, aid=20):
         headers = {'User-Agent':'Mozilla/5.0'}
         writer = Writer_press(category_name = "aid123")
         url = 'https://sports.news.naver.com/news.nhn?'
         oid = 'oid='+str(oid)  
         #여기서 입력받은 oid(언론사 id)를 지정할 거에요
-        for i in range(1,aid):
-            print(i)
+        for i in tqdm(range(1,aid), desc="Crawling rate", mininterval=0.01):
+            #print(i)
             aid = str(i)
             aid_length = len(aid)
             aid = '&aid='+'0'*(10-aid_length) + aid
             url1 = url + oid + aid
             b = requests.get(url1,headers=headers)
-            print(url1)
+            #print(url1)
             document = BeautifulSoup(b.content, 'html.parser')
             tag_content = document.find_all('div', {'id': 'newsEndContents'})
             
             text_sentence = ''
             text_sentence = text_sentence + ArticleParser.clear_content(str(tag_content[0].find_all(text=True)))
-            print(text_sentence)
+            #print(text_sentence)
             headline = ''
             tag_headline = document.find_all('h4', {'class':'title'})
             headline = headline + ArticleParser.clear_headline(str(tag_headline[0].find_all(text=True)))
             article_info = document.find_all('div',{'class':'info'})
             #여기서 article info 정제 작업을 하며 좋을 것 같아요.
             writer.wcsv.writerow([headline,text_sentence,url1])
+            print()
         writer.close()
 
         '''
@@ -219,10 +226,13 @@ class ArticleCrawler(object):
 
 if __name__ == "__main__":
     Crawler = ArticleCrawler()
+    Crawler.set_category("생활문화")
+    Crawler.set_date_range(2020, 9, 2020, 10)
     '''
     Crawler.set_category("생활문화", "IT과학")
     Crawler.set_date_range(2017, 1, 2018, 4)
     Crawler.start()
     '''
     #언론사별 크롤링 실행 함수입니다. 일단 oid aid는 default값을 설정했어요
+    #Crawler.start()
     Crawler.press_crawling()
