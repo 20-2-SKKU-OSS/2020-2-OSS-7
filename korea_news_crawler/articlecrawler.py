@@ -260,9 +260,26 @@ if __name__ == "__main__":
     Crawler = ArticleCrawler()
 
     Crawler.set_category("생활문화")
-    Crawler.set_date_range(2020, 9, 2020, 10)
+    print("카테고리를 정해주세요")
+    print("1. 정치")
+    print("2. 경제")
+    print("3. 사회")
+    print("4. 생활문화")
+    print("5. 세계")
+    print("6. IT과학")
+    print("7. 오피니언")
+   # print("카테고리를 모두 골랐으면 quit을 입력하세요")
+    #list1=[]
+    s1=input('원하는 카테고리를 한글로 쓰고 엔터를 눌러주세요: ')
+    #list1.append(s)
+    a=int(input('원하는 크롤링할 범위의 시작년도: '))	
+    b=int(input('원하는 크롤링할 범위의 시작 월: '))	
+    c=int(input('원하는 크롤링할 범위의 끝 년도: '))	
+    d=int(input('원하는 크롤링할 범위의 끝 년도: '))	
+    
+    Crawler.set_date_range(a, b, c, d)
+    Crawler.set_category(s1)
     '''
-
     Crawler.set_category("생활문화", "IT과학")
     Crawler.set_date_range(2017, 1, 2017, 4)
     Crawler.start()
