@@ -2,20 +2,23 @@ import csv
 import platform
 
 
-class Writer(object):
-    def __init__(self, category_name, date, text_company):
+class Writer_press(object):
+    def __init__(self, category_name):
         self.user_operating_system = str(platform.system())
 
         self.category_name = category_name
         # 이부분 추가
-        self.text_company = text_company
+        self.text_company = 'aa'
         #
-        self.date = date
+        '''
+        self.date = "date"
         self.save_start_year = self.date['start_year']
         self.save_end_year = self.date['end_year']
         self.save_start_month = None
         self.save_end_month = None
-        self.initialize_month()
+        이부분도 필요없어요..
+        ''' 
+        #self.initialize_month() 이 함수는 필요없습니다...
 
         self.file = None
         self.initialize_file()
