@@ -1,6 +1,6 @@
 ---
 title: 콘솔창에서 input으로 입력값들 받고 다른 함수에 전달해주는 함수 구현
-categories: [SeoUiTae]
+categories: [SeoUitae]
 comments: true
 ---
 ----------------------------------------------------------------------  
