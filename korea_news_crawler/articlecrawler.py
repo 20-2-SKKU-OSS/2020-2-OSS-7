@@ -27,7 +27,6 @@ def get_oid():
         uinput = input("원하는 언론사 번호를 입력하세요: ")
         oid_num = int(uinput)
         result = oid[oid_num-1]
-        #print(result)
         return result
 
 
@@ -199,7 +198,6 @@ class ArticleCrawler(object):
         url = 'https://sports.news.naver.com/news.nhn?'
         oid_num = get_oid()
         oid = 'oid='+ oid_num
-        #여기서 입력받은 oid(언론사 id)를 지정할 거에요
         for i in tqdm(range(1,aid), desc="Crawling rate", mininterval=0.01):
             #print(i)
             aid = str(i)
