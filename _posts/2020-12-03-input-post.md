@@ -50,8 +50,7 @@ set_date_range함수의 인자가 시작년도, 시작월, 끝 년도, 끝 월�
         # MultiProcess 크롤링 시작
         for category_name in self.selected_categories:
             proc = Process(target=self.crawling, args=(category_name,))
-            proc.start()
- ----------------------------------------------------------------------            
+            proc.start()           
   
   
 이를 self.crawling(category_name)으로 수정하였다.
@@ -63,5 +62,5 @@ set_date_range함수의 인자가 시작년도, 시작월, 끝 년도, 끝 월�
             proc = Process(target=self.crawling, args=(category_name,))
             proc.start()
             self.crawling(category_name)
- ----------------------------------------------------------------------  
+ 
    
