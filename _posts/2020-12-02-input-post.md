@@ -16,7 +16,7 @@ Crawler = ArticleCrawler()
     print("5. 세계")
     print("6. IT과학")
     print("7. 오피니언")
-   # print("카테고리를 모두 골랐으면 quit을 입력하세요")
+  
     #list1=[]
     s1=input('원하는 카테고리를 한글로 쓰고 엔터를 눌러주세요: ')
     #list1.append(s)
