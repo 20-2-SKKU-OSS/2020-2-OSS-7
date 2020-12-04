@@ -253,7 +253,7 @@ class ArticleCrawler(object):
         for category_name in self.selected_categories:
             proc = Process(target=self.crawling, args=(category_name,))
             proc.start()
-            self.crawling("생활문화")
+            self.crawling(category_name)
 
 
 if __name__ == "__main__":
@@ -281,4 +281,5 @@ if __name__ == "__main__":
     Crawler.set_category(s1)
     Crawler.start()
     Crawler.press_crawling()
+    #Crawler.start()
     
