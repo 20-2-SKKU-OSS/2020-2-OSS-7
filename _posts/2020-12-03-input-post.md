@@ -4,10 +4,7 @@ categories: [SeoUitae]
 comments: true
 ---
 ----------------------------------------------------------------------  
-
-Crawler = ArticleCrawler()
-
-    #Crawler.set_category("생활문화")
+    Crawler = ArticleCrawler()
     print("카테고리를 정해주세요")
     print("1. 정치")
     print("2. 경제")
@@ -17,9 +14,7 @@ Crawler = ArticleCrawler()
     print("6. IT과학")
     print("7. 오피니언")
   
-    #list1=[]
     s1=input('원하는 카테고리를 한글로 쓰고 엔터를 눌러주세요: ')
-    #list1.append(s)
     a=int(input('원하는 크롤링할 범위의 시작년도: '))	
     b=int(input('원하는 크롤링할 범위의 시작 월: '))	
     c=int(input('원하는 크롤링할 범위의 끝 년도: '))	
@@ -28,7 +23,6 @@ Crawler = ArticleCrawler()
     Crawler.set_date_range(a, b, c, d)
     Crawler.set_category(s1)
    
-    #언론사별 크롤링 실행 함수입니다. 일단 oid aid는 default값을 설정했어요
     Crawler.start()
     Crawler.press_crawling()
 ----------------------------------------------------------------------      
