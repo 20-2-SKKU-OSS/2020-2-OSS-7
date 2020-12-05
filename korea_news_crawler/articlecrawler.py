@@ -136,7 +136,7 @@ class ArticleCrawler(object):
         print(category_name + " Urls are generated")
         print("The crawler starts")
 
-        for URL in day_urls:
+        for URL in tqdm(day_urls,desc="Crawling rate", mininterval=0.01):
             
             regex = re.compile("date=(\d+)")
             news_date = regex.findall(URL)[0]
@@ -244,7 +244,7 @@ class ArticleCrawler(object):
                     #print(iTime)
                     #===================================================
 
-                    writer.wcsv.writerow([headline,text_sentence,url1,iTime])
+                    writer.wcsv.writerow([headline,text_sentence,url1])
             print()
         writer.close()
 
