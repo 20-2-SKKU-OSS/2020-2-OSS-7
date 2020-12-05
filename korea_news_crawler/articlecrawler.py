@@ -197,6 +197,13 @@ class ArticleCrawler(object):
                     del request_content, document_content
                     pass
         writer.close()
+
+    #기사 입력 시간 정보 받기
+    @staticmethod
+    def inputTime(input_time):
+        article_input = input_time[30:40] #ex) "2020.06.11" 을 받음 / 예전꺼만 될 수도 있음. 크롤링하고 문제있으면 수정할 것
+        return article_input
+
     def press_crawling(self, oid=215, aid=20):
         headers = {'User-Agent':'Mozilla/5.0'}
         
@@ -216,7 +223,6 @@ class ArticleCrawler(object):
             #print(url1)
             document = BeautifulSoup(b.content, 'html.parser')
             tag_content = document.find_all('div', {'id': 'newsEndContents'})
-
             
             if len(tag_content) != 0:
                     #print(url1)
@@ -228,6 +234,16 @@ class ArticleCrawler(object):
                     headline = headline + ArticleParser.clear_headline(str(tag_headline[0].find_all(text=True)))
                     article_info = document.find_all('div',{'class':'info'})
                     #여기서 article info 정제 작업을 하며 좋을 것 같아요.
+
+                    #====================================================
+                    #기사 입력 시간 정보 받기
+                    input_time = str(article_info[0])
+                    iTime = ""
+                    iTime = self.inputTime(input_time)
+                    #print("\n")
+                    #print(iTime)
+                    #===================================================
+
                     writer.wcsv.writerow([headline,text_sentence,url1])
             print()
         writer.close()
