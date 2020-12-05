@@ -19,20 +19,6 @@ import calendar
 import requests
 import re
 
-def get_oid():
-        oid = ['001','005','009','014','629','018','021','022','047','052','055','065',' 469','088','108','109','117','119','139','144','236','277','311','343','347','356', '382','396','398','410','413','417','421','436','439','442','445','477','450','468']
-        name = ["연합뉴스","국민일보","매일경제", "파이낸셜뉴스","더팩트","이데일리","문화일보","세계일보","오마이뉴스","YTN","SBS","점프볼","한국일보","매일신문","스타뉴스",
-            "OSEN","마이데일리","데일리안","스포탈코리아","스포츠경향","포모스","아시아경제","엑스포츠뉴스","베스트일레븐","데일리e스포츠","게임메카","스포츠동아","스포츠월드","루키","MK스포츠",
-            "인터풋볼","머니S","뉴스1","풋볼리스트","디스이즈게임","인벤","윈터뉴스","스포티비뉴스","STN 스포츠","스포츠서울"
-        ]
-        print("\n1.연합뉴스\n2.국민일보\n3.매일경제 \n4.파이낸셜뉴스\n5.더팩트\n6.이데일리\n7.문화일보\n8.세계일보\n9. 오마이뉴스\n10.YTN\n11.SBS\n12.점프볼\n13.한국일보\n14.매일신문\n15.스타뉴스") 
-        print("16.OSEN\n17.마이데일리\n18.데일리안\n19.스포탈코리아\n20.스포츠경향\n21.포모스\n22.아시아경제\n23.엑스포츠뉴스\n24.베스트일레븐\n25.데일리e스포츠\n26.게임메카\n27.스포츠동아\n28.스포츠월드\n29.루키\n30.MK스포츠")
-        print("31.인터풋볼\n32.머니S\n33.뉴스1\n34.풋볼리스트\n35.디스이즈게임\n36.인벤\n37.윈터뉴스\n38.스포티비뉴스\n39.STN 스포츠\n40.스포츠서울\n")
-        uinput = input("원하는 언론사 번호를 입력하세요: ")
-        oid_num = int(uinput)
-        result = oid[oid_num-1]
-        return result, name[oid_num-1]
-
 
 class ArticleCrawler(object):
     def __init__(self):
@@ -63,6 +49,7 @@ class ArticleCrawler(object):
         for key, date in zip(self.date, args):
             self.date[key] = date
         print(self.date)
+        
     @staticmethod
     def make_news_page_url(category_url, start_year, end_year, start_month, end_month):
         made_urls = []
@@ -83,10 +70,9 @@ class ArticleCrawler(object):
                     year_startmonth = 1
                     year_endmonth = 12
             
-            for month in tqdm(range(year_startmonth, year_endmonth + 1),desc="MakeUrl rate", mininterval=0.01):
-                print('\n')
+            for month in range(year_startmonth, year_endmonth + 1):
+                
                 for month_day in range(1, calendar.monthrange(year, month)[1] + 1):
-                    
                     if len(str(month)) == 1:
                         month = "0" + str(month)
                     if len(str(month_day)) == 1:
@@ -198,21 +184,18 @@ class ArticleCrawler(object):
                     pass
         writer.close()
 
-    #기사 입력 시간 정보 받기
-    @staticmethod
-    def inputTime(input_time):
-        article_input = input_time[30:40] #ex) "2020.06.11" 을 받음 / 예전꺼만 될 수도 있음. 크롤링하고 문제있으면 수정할 것
-        return article_input
+    def article_inputTime(self, article_input):
+        input_year = int(article_input[0:4])
+        input_month = int(article_input[5:7])
+        input_date = int(article_input[8:10])
+        # csv 파일 생성을 위해 정보를 보내는 코드 필요
 
     def press_crawling(self, oid=215, aid=20):
         headers = {'User-Agent':'Mozilla/5.0'}
-        
+        writer = Writer_press(category_name = "aid123")
         url = 'https://sports.news.naver.com/news.nhn?'
-        oid_num, name = get_oid()
-        print("몇 개의 기사를 크롤링 할까요?")
-        aid = int(input())
-        writer = Writer_press(category_name = str(aid),text_c=name )
-        oid = 'oid='+ oid_num
+        oid = 'oid='+str(oid)  
+        #여기서 입력받은 oid(언론사 id)를 지정할 거에요
         for i in tqdm(range(1,aid), desc="Crawling rate", mininterval=0.01):
             #print(i)
             aid = str(i)
@@ -224,27 +207,24 @@ class ArticleCrawler(object):
             document = BeautifulSoup(b.content, 'html.parser')
             tag_content = document.find_all('div', {'id': 'newsEndContents'})
             
-            if len(tag_content) != 0:
-                    #print(url1)
-                    text_sentence = ''
-                    text_sentence = text_sentence + ArticleParser.clear_content(str(tag_content[0].find_all(text=True)))
-                    #print(text_sentence)
-                    headline = ''
-                    tag_headline = document.find_all('h4', {'class':'title'})
-                    headline = headline + ArticleParser.clear_headline(str(tag_headline[0].find_all(text=True)))
-                    article_info = document.find_all('div',{'class':'info'})
-                    #여기서 article info 정제 작업을 하며 좋을 것 같아요.
+            text_sentence = ''
+            text_sentence = text_sentence + ArticleParser.clear_content(str(tag_content[0].find_all(text=True)))
+            #print(text_sentence)
+            headline = ''
+            tag_headline = document.find_all('h4', {'class':'title'})
+            headline = headline + ArticleParser.clear_headline(str(tag_headline[0].find_all(text=True)))
+            article_info = document.find_all('div',{'class':'info'})
+            
+            #기사 입력 시간 정보 받기
+            tmp = str(article_info[0])
+            article_input = tmp[30:41]
 
-                    #====================================================
-                    #기사 입력 시간 정보 받기
-                    input_time = str(article_info[0])
-                    iTime = ""
-                    iTime = self.inputTime(input_time)
-                    #print("\n")
-                    #print(iTime)
-                    #===================================================
+            input_year = int(article_input[0:4])
+            input_month = int(article_input[5:7])
+            input_date = int(article_input[8:10])
 
-                    writer.wcsv.writerow([headline,text_sentence,url1])
+            #여기서 article info 정제 작업을 하며 좋을 것 같아요.
+            writer.wcsv.writerow([headline,text_sentence,url1])
             print()
         writer.close()
 
@@ -266,56 +246,38 @@ class ArticleCrawler(object):
         for category_name in self.selected_categories:
             proc = Process(target=self.crawling, args=(category_name,))
             proc.start()
-            self.crawling(category_name)
+            self.crawling("생활문화")
 
 
 if __name__ == "__main__":
     Crawler = ArticleCrawler()
-    print("1.카테고리 별 크롤링(정치,경제,사회,생활문화...) 2.언론사별 크롤링")
-    select = int(input())
-    #Crawler.set_category("생활문화")
-    if(select == 1):
-            print("카테고리를 정해주세요")
-            print("1. 정치")
-            print("2. 경제")
-            print("3. 사회")
-            print("4. 생활문화")
-            print("5. 세계")
-            print("6. IT과학")
-            print("7. 오피니언")
-           # print("카테고리를 모두 골랐으면 quit을 입력하세요")
-            #list1=[]
-            s1=int(input('원하는 카테고리 번호를 입력하고 엔터를 눌러주세요: '))
-            #list1.append(s)
-            a=int(input('원하는 크롤링할 범위의 시작년도: '))	
-            b=int(input('원하는 크롤링할 범위의 시작 월: '))	
-            c=int(input('원하는 크롤링할 범위의 끝 년도: '))	
-            d=int(input('원하는 크롤링할 범위의 끝 년도: '))	
-            ss1 = "정치"
 
-            if s1 == 1 :
-              ss1 = "정치"
-            if s1 == 2 :
-              ss1 = "경제"
-            if s1 == 3 :
-              ss1 = "사회"
-            if s1 == 4 :
-              ss1 = "생활문화"
-            if s1 == 5 :
-              ss1 = "세계"
-            if s1 == 6 :
-              ss1 = "IT과학"
-            if s1 == 7 :
-              ss1 = "오피니언"
-            Crawler.set_date_range(a,b,c,d)
-            Crawler.set_category(ss1)
-            Crawler.start()
-              
-    if(select == 2):
-            Crawler.press_crawling()
+    Crawler.set_category("생활문화")
+    print("카테고리를 정해주세요")
+    print("1. 정치")
+    print("2. 경제")
+    print("3. 사회")
+    print("4. 생활문화")
+    print("5. 세계")
+    print("6. IT과학")
+    print("7. 오피니언")
+   # print("카테고리를 모두 골랐으면 quit을 입력하세요")
+    #list1=[]
+    s1=input('원하는 카테고리를 한글로 쓰고 엔터를 눌러주세요: ')
+    #list1.append(s)
+    a=int(input('원하는 크롤링할 범위의 시작년도: '))	
+    b=int(input('원하는 크롤링할 범위의 시작 월: '))	
+    c=int(input('원하는 크롤링할 범위의 끝 년도: '))	
+    d=int(input('원하는 크롤링할 범위의 끝 년도: '))	
     
-    #Crawler.set_date_range(a, b, c, d)
-    #Crawler.set_category(ss1)
+    Crawler.set_date_range(a, b, c, d)
+    Crawler.set_category(s1)
+    '''
+
+    Crawler.set_category("생활문화", "IT과학")
+    Crawler.set_date_range(2017, 1, 2017, 4)
+    Crawler.start()
+    '''
+    #언론사별 크롤링 실행 함수입니다. 일단 oid aid는 default값을 설정했어요
     #Crawler.start()
-    #Crawler.start()
-    
+    Crawler.press_crawling()
