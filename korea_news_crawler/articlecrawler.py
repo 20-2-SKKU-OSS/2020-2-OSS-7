@@ -243,8 +243,9 @@ class ArticleCrawler(object):
                     #print("\n")
                     #print(iTime)
                     #===================================================
-
-                    writer.wcsv.writerow([headline,text_sentence,url1])
+                    if headline == '':
+                        headline = '-'
+                    writer.wcsv.writerow([headline,text_sentence,url1,iTime])
             print()
         writer.close()
 
