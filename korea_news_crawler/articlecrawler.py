@@ -139,7 +139,7 @@ class ArticleCrawler(object):
         for URL in day_urls:
             
             regex = re.compile("date=(\d+)")
-            news_date = regex.findall(URL)[0] # 필요없는 변수. 밑에 i_Time으로 기사입력시간 입력
+            news_date = regex.findall(URL)[0]
 
             request = self.get_url_data(URL)
 
@@ -188,22 +188,10 @@ class ArticleCrawler(object):
                     text_company = text_company + str(tag_company[0].get('content'))
                     if not text_company:  # 공백일 경우 기사 제외 처리
                         continue
-                    
-                    # 기사 입력 시간 가져옴
-                    article_Info = document_content.find_all('div',{'class':'info'})
-                    input_Time = str(article_Info[0])
-                    i_time = ""
-                    i_time = self.inputTime(input_Time)
-                    #print("\n")
-                    #print(i_time)
-                    input_year = i_time[:4]
-                    input_month = i_time[5:7]
-                    input_date = i_time[8:10]
-                    i_time = input_year + input_month + input_date
                         
                     # CSV 작성
                     wcsv = writer.get_writer_csv()
-                    wcsv.writerow([i_time, category_name, text_company, text_headline, text_sentence, content_url])
+                    wcsv.writerow([news_date, category_name, text_company, text_headline, text_sentence, content_url])
                     
                     del text_company, text_sentence, text_headline
                     del tag_company 
