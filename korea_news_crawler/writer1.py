@@ -3,12 +3,12 @@ import platform
 
 
 class Writer_press(object):
-    def __init__(self, category_name):
+    def __init__(self, category_name,text_c):
         self.user_operating_system = str(platform.system())
 
         self.category_name = category_name
         # 이부분 추가
-        self.text_company = 'aa'
+        self.text_company = text_c
         #
         '''
         self.date = "date"

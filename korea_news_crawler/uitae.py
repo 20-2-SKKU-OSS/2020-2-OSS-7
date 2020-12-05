@@ -229,13 +229,13 @@ class ArticleCrawler(object):
         for category_name in self.selected_categories:
             proc = Process(target=self.crawling, args=(category_name,))
             proc.start()
-            self.crawling("생활문화")
+            self.crawling(category_name)
 
 
 if __name__ == "__main__":
     Crawler = ArticleCrawler()
 
-    Crawler.set_category("생활문화")
+    #Crawler.set_category("생활문화")
     print("카테고리를 정해주세요")
     print("1. 정치")
     print("2. 경제")
@@ -255,12 +255,7 @@ if __name__ == "__main__":
     
     Crawler.set_date_range(a, b, c, d)
     Crawler.set_category(s1)
-    '''
-
-    Crawler.set_category("생활문화", "IT과학")
-    Crawler.set_date_range(2017, 1, 2017, 4)
-    Crawler.start()
-    '''
+   
     #언론사별 크롤링 실행 함수입니다. 일단 oid aid는 default값을 설정했어요
-    #Crawler.start()
+    Crawler.start()
     Crawler.press_crawling()
