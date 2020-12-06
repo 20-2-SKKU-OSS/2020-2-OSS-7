@@ -294,18 +294,29 @@ class gui(QWidget):
         self.rbtn2.clicked.connect(self.onClicked2)
         
         
-        self.selectLabel=QLabel('1. 정치  2. 경제  3. 사회  4. 생활문화  5. 세계  6. IT과학  7. 오피니언', self)
-        self.selectLabel.move(50, 100)
-            
+        self.catLabel=QLabel('1. 정치  2. 경제  3. 사회  4. 생활문화  5. 세계  6. IT과학  7. 오피니언', self)
+        self.catLabel.move(50, 100)
+        self.pressLabel=QLabel('1.연합뉴스 2.국민일보 3.매일경제 4.파이낸셜뉴스 5.더팩트 6.이데일리 7.문화일보 8.세계일보 9. 오마이뉴스 10.YTN \n\
+11.SBS 12.점프볼 13.한국일보 14.매일신문 15.스타뉴스 16.OSEN 17.마이데일리 18.데일리안 19.스포탈코리아 20.스포츠경향\n\
+21.포모스 22.아시아경제 23.엑스포츠뉴스 24.베스트일레븐 25.데일리e스포츠 26.게임메카 27.스포츠동아 28.스포츠월드 29.루키 30.MK스포츠\n\
+31.인터풋볼 32.머니S 33.뉴스1 34.풋볼리스트 35.디스이즈게임 36.인벤 37.윈터뉴스 38.스포티비뉴스 39.STN 스포츠 40.스포츠서울', self)
+        self.pressLabel.move(50, 100)
+        self.pressLabel.hide()
+
+        self.selectLabel1=QLabel('카테고리 선택 : ', self)
+        self.selectLabel1.move(50, 130)
         
 
-        self.resize(1000, 800)
+        self.resize(1100, 800)
         self.setWindowTitle("뉴스 기사 크롤링")
         self.show() 
 
     def onClicked2(self):
         if self.rbtn2.isChecked():
-            self.selectLabel.setText("clicked")
+            self.catLabel.setText("clicked")
+            self.catLabel.hide()
+            self.pressLabel.show()
+            
 
 if __name__ == "__main__": 
     app=QApplication(sys.argv)
