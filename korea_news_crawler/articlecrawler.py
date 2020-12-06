@@ -384,7 +384,8 @@ class gui(QWidget):
                 option.show()
     
     def catChanged(self, num):
-        self.cat=int(num)
+        if num:
+            self.cat=int(num)
     def timeChanged1(self, num):
         self.startYear=int(num)
     def timeChanged2(self, num):
@@ -416,6 +417,7 @@ class gui(QWidget):
         self.Crawler.set_date_range(self.startYear, self.startMonth, self.endYear, self.endMonth)
         self.Crawler.start()
     def btn2Clicked(self):
+        #self.Crawler.press_crawling()
         print("2clicked")
         
             
@@ -472,7 +474,7 @@ if __name__ == "__main__":
     Crawler.set_date_range(a, b, c, d)
     Crawler.set_category(ss1)
     #Crawler.start()
-    Crawler.press_crawling()
+    #Crawler.press_crawling()
 
     #Crawler.start()
     
