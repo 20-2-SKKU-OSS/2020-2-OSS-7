@@ -7,7 +7,7 @@ from tqdm import tqdm, tqdm_gui
 from tqdm import trange
 from multiprocessing import Process
 from PyQt5.QtWidgets import * #QApplication, QWidget, QLabel, QTextEdit
-from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import pyqtSignal, QThread
 
 from exceptions import *
 from articleparser import ArticleParser
@@ -144,8 +144,8 @@ class ArticleCrawler(object):
         print("The crawler starts")
 
 
-        
-        for URL in tqdm(day_urls,desc="Crawling rate", mininterval=0.01):
+        #,desc="Crawling rate", mininterval=0.01, disable=False
+        for URL in tqdm.gui(day_urls,desc="Crawling rate", mininterval=0.01, disable=False):
             
             regex = re.compile("date=(\d+)")
             news_date = regex.findall(URL)[0]
@@ -333,11 +333,10 @@ class ArticleCrawler(object):
 
 
 class gui(QWidget):  
-    change_value=pyqtSignal(int)
     def __init__(self):
         super().__init__()
         self.initUI()
-        
+        #th=update()
         startYear=0
         startMonth=0
         endYear=0
@@ -406,17 +405,16 @@ class gui(QWidget):
         self.btn1.move(50, 225)
         self.btn1.clicked.connect(self.btn1Clicked)
 
-        
+        self.th=update()
         self.pbar=QProgressBar(self)
         self.pbar.setGeometry(50, 270, 400, 30)
-        self.change_value.connect(self.pbar.setValue)
+        self.th.change_value.connect(self.pbar.setValue)
+        '''
         if len(self.Crawler.made_urls)!=0:
-            print("len"+str(len(self.Crawler.made_urls))+"value"+str(self.Crawler.num/len(self.Crawler.made_urls)*100))
-            self.change_value.emit(self.Crawler.num/len(self.Crawler.made_urls)*100)
             #self.pbar.setValue(self.Crawler.num/len(self.Crawler.made_urls)*100)
         else:
             self.pbar.setValue(0)
-
+        '''
         self.option1=[self.selectLabel1, self. catLabel, self.catEdit, self.timeLabel1, self.timeLabel2, self.timeLabel3, self.timeLabel4,\
             self.timeEdit1, self.timeEdit2, self.timeEdit3, self.timeEdit4, self.btn1]
 
@@ -500,8 +498,15 @@ class gui(QWidget):
         #self.Crawler.press_crawling()
         #print("2clicked")
         print("2clicked!")
-        
-            
+
+class update(QThread):
+    change_value=pyqtSignal(int)
+    def run(self):
+        print("run")
+        while len(w.Crawler.made_urls) !=0:
+            value=self.Crawler.num/len(self.Crawler.made_urls)*100
+            print(value)
+            self.change_value.emit(value)
 
 if __name__ == "__main__": 
     app=QApplication(sys.argv)
