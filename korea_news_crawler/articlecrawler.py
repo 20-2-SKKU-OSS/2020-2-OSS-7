@@ -7,6 +7,7 @@ from tqdm import tqdm, tqdm_gui
 from tqdm import trange
 from multiprocessing import Process
 from PyQt5.QtWidgets import * #QApplication, QWidget, QLabel, QTextEdit
+from PyQt5.QtCore import pyqtSignal
 
 from exceptions import *
 from articleparser import ArticleParser
@@ -332,6 +333,7 @@ class ArticleCrawler(object):
 
 
 class gui(QWidget):  
+    change_value=pyqtSignal(int)
     def __init__(self):
         super().__init__()
         self.initUI()
@@ -403,10 +405,15 @@ class gui(QWidget):
         self.btn1.setText('크롤링 시작')
         self.btn1.move(50, 225)
         self.btn1.clicked.connect(self.btn1Clicked)
+
+        
         self.pbar=QProgressBar(self)
         self.pbar.setGeometry(50, 270, 400, 30)
+        self.change_value.connect(self.pbar.setValue)
         if len(self.Crawler.made_urls)!=0:
-            self.pbar.setValue(self.Crawler.num/len(self.Crawler.made_urls)*100)
+            print("len"+str(len(self.Crawler.made_urls))+"value"+str(self.Crawler.num/len(self.Crawler.made_urls)*100))
+            self.change_value.emit(self.Crawler.num/len(self.Crawler.made_urls)*100)
+            #self.pbar.setValue(self.Crawler.num/len(self.Crawler.made_urls)*100)
         else:
             self.pbar.setValue(0)
 
