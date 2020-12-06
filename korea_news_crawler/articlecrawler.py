@@ -3,7 +3,7 @@
 
 from time import sleep
 from bs4 import BeautifulSoup
-from tqdm import tqdm
+from tqdm import tqdm, tqdm_gui
 from tqdm import trange
 from multiprocessing import Process
 from PyQt5.QtWidgets import * #QApplication, QWidget, QLabel, QTextEdit
@@ -216,7 +216,7 @@ class ArticleCrawler(object):
         aid = int(input())
         writer = Writer_press(category_name = str(aid),text_c=name )
         oid = 'oid='+ oid_num
-        for i in tqdm(range(1,aid), desc="Crawling rate", mininterval=0.01):
+        for i in tqdm_gui(range(1,aid), desc="Crawling rate", mininterval=0.01):
             #print(i)
             aid = str(i)
             aid_length = len(aid)
@@ -273,10 +273,14 @@ class ArticleCrawler(object):
             self.crawling(category_name)
 
 
-class gui(QWidget):
+class gui(QWidget):  
     def __init__(self):
         super().__init__()
         self.initUI()
+        startYear=0
+        startMonth=0
+        endYear=0
+        endMonth=0
     def initUI(self):
         label0=QLabel('크롤러를 설정해주세요.', self)
         label0.move(50, 30)
@@ -290,8 +294,8 @@ class gui(QWidget):
         self.rbtn1.setChecked(True)
         self.rbtn1.move(50, 70)
         self.rbtn2.move(250, 70)
-        #w.rbtn1.toggled.connect(self.onClicked)
-        self.rbtn2.clicked.connect(self.onClicked2)
+        self.rbtn1.clicked.connect(self.onClicked)
+        self.rbtn2.clicked.connect(self.onClicked)
         
         
         self.catLabel=QLabel('1. 정치  2. 경제  3. 사회  4. 생활문화  5. 세계  6. IT과학  7. 오피니언', self)
@@ -320,17 +324,45 @@ class gui(QWidget):
         self.timeEdit1.move(130, 158)
         self.timeLabel2.move(340, 160)
         self.timeEdit2.move(400, 158)
+        self.timeLabel3.move(50, 190)
+        self.timeEdit3.move(120, 188)
+        self.timeLabel4.move(320, 190)
+        self.timeEdit4.move(370, 188)
+
+        self.timeEdit1.textChanged[str].connect(self.timeChanged1)
+        self.timeEdit2.textChanged[str].connect(self.timeChanged2)
+        self.timeEdit3.textChanged[str].connect(self.timeChanged3)
+        self.timeEdit4.textChanged[str].connect(self.timeChanged4)
+
+        self.selectLabel2=QLabel('언론사 선택 : ')
+        self.selectLabel2.move(50, 130)
+        self.selectLabel2.hide()
+        self.pressEdit=QLineEdit(self)
+        self.pressEdit.move(168, 128)
+        self.pressEdit.hide()
         
 
         self.resize(1100, 800)
         self.setWindowTitle("뉴스 기사 크롤링")
         self.show() 
 
-    def onClicked2(self):
+    def onClicked(self):
+        if self.rbtn1.isChecked():
+            
         if self.rbtn2.isChecked():
             self.catLabel.setText("clicked")
             self.catLabel.hide()
             self.pressLabel.show()
+    
+    def timeChanged1(self, num):
+        self.startYear=int(num)
+    def timeChanged2(self, num):
+        self.startMonth=int(num)
+    def timeChanged3(self, num):
+        self.endYear=int(num)
+    def timeChanged4(self, num):
+        self.endMonth=int(num)
+        
             
 
 if __name__ == "__main__": 
