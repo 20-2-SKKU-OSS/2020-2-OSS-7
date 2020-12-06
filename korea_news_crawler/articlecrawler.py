@@ -225,7 +225,7 @@ class ArticleCrawler(object):
 
         oid = 'oid='+ oid
         for i in tqdm(range(1,aid), desc="Crawling rate", mininterval=0.01):
-            #print(i)
+            self.num+=1
             aid = str(i)
             aid_length = len(aid)
             aid = '&aid='+'0'*(10-aid_length) + aid
@@ -407,8 +407,8 @@ class gui(QWidget):
         self.btn1.clicked.connect(self.btn1Clicked)
 
         self.btn3=QPushButton(self)
-        self.btn3.setText('진행상황')
-        self.btn3.move(50, 300)
+        self.btn3.setText('진행 상황 업데이트')
+        self.btn3.move(50, 320)
         self.btn3.clicked.connect(self.btn3Clicked)
 
         
@@ -434,9 +434,14 @@ class gui(QWidget):
         self.btn2.setText("크롤링 시작")
         self.btn2.move(50, 250)
         self.btn2.clicked.connect(self.btn2Clicked)
-        self.option2=[self.pressLabel, self.selectLabel2, self.pressEdit, self.numLabel, self.numEdit, self.btn2]
-        
 
+        self.btn4=QPushButton(self)
+        self.btn4.move(50, 350)
+        self.btn4.setText("진행 상황 업데이트")
+        self.btn4.clicked.connect(self.btn4Clicked)
+        self.option2=[self.pressLabel, self.selectLabel2, self.pressEdit, self.numLabel, self.numEdit, self.btn2, self.btn4]
+        
+        
         for option in self.option2:
             option.hide()
         self.resize(1100, 800)
@@ -449,7 +454,9 @@ class gui(QWidget):
                 option.hide()
             for option in self.option1:
                 option.show()
+            self.pbar.setGeometry(50, 270, 400, 30)
         if self.rbtn2.isChecked():
+            self.pbar.setGeometry(50, 300, 400, 30)
             for option in self.option1:
                 option.hide()
             for option in self.option2:
@@ -494,23 +501,30 @@ class gui(QWidget):
         Crawler.set_category(ss1)
         Crawler.set_date_range(self.startYear, self.startMonth, self.endYear, self.endMonth)
         #self.Crawler.start()
-        x=update(self)
+        x=crawler1(self)
         x.start()
         
     def btn2Clicked(self):
         oid, name = get_oid(self.press)
-        Crawler.press_crawling(oid = oid, aid = self.num, name = name)
+        x=crawler2(self, oid, self.num, name)
+        x.start()
         
     def btn3Clicked(self):
         if len(Crawler.made_urls) !=0 :
             value=(Crawler.num/len(Crawler.made_urls))*100
             self.pbar.setValue(value)
-        print(str(value))
+    def btn4Clicked(self):
+        value=(Crawler.num/self.num)*100
+        self.pbar.setValue(value)
+
     
 
-class update(QThread):
+class crawler1(QThread):
     def run(self):
         Crawler.start()
+class crawler2(QThread, oid, aid, name):
+    def run(self):
+        Crawler.press_crawling(oid = oid, aid = aid, name = name)
         
 Crawler = ArticleCrawler()
 if __name__ == "__main__": 
