@@ -22,6 +22,7 @@ class Writer_press(object):
 
         self.file = None
         self.initialize_file()
+        self.file_name = ''
 
         self.wcsv = csv.writer(self.file)
 
@@ -45,6 +46,18 @@ class Writer_press(object):
             self.file = open('Article_' + self.category_name + '_' + str(self.text_company) + '.csv', 'w',
                              encoding='utf-8',
                              newline='')
+
+    def keyword_search(self, keyword):
+        self.file_name = 'Article_' + str(self.text_company) + self.category_name + '_' + '.csv'
+        search_file = open(self.file_name, 'r', encoding='utf-8')
+        write_search = open('Keyword_Search_' + self.file_name, 'w', encoding='utf-8')
+        wcsv = csv.writer(write_search)
+        rdr = csv.reader(search_file)
+        for line in rdr:
+            if line[0].find(keyword) != -1:
+                wcsv.writerow([line[0], line[1], line[2], line[3]])
+        search_file.close()
+        write_search.close()
 
     def get_writer_csv(self):
         return self.wcsv

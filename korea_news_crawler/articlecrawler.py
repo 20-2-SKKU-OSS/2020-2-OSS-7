@@ -8,11 +8,11 @@ from tqdm import trange
 from multiprocessing import Process
 from PyQt5.QtWidgets import * #QApplication, QWidget, QLabel, QTextEdit
 
-from exceptions import *
-from articleparser import ArticleParser
-from writer import Writer
+from .exceptions import *
+from .articleparser import ArticleParser
+from .writer import Writer
 
-from writer1 import Writer_press
+from .writer1 import Writer_press
 import sys
 import os
 import platform
@@ -43,6 +43,7 @@ class ArticleCrawler(object):
         self.selected_categories = []
         self.date = {'start_year': 0, 'start_month': 0, 'end_year': 0, 'end_month': 0}
         self.user_operating_system = str(platform.system())
+        self.writer = None
 
     #크롤링할 카테고리 설정
     def set_category(self, *args):
@@ -65,6 +66,7 @@ class ArticleCrawler(object):
         for key, date in zip(self.date, args):
             self.date[key] = date
         print(self.date)
+
     @staticmethod
     def make_news_page_url(category_url, start_year, end_year, start_month, end_month):
         made_urls = []
@@ -129,7 +131,7 @@ class ArticleCrawler(object):
         print(category_name + " PID: " + str(os.getpid()))    
 
         writer = Writer(category_name=category_name, date=self.date)
-        
+        self.writer = writer
         # 기사 URL 형식
         url = "http://news.naver.com/main/list.nhn?mode=LSD&mid=sec&sid1=" + str(self.categories.get(category_name)) + "&date="
 
@@ -213,7 +215,9 @@ class ArticleCrawler(object):
         url = 'https://sports.news.naver.com/news.nhn?'
         
         writer = Writer_press(category_name = str(aid),text_c=name )
-        oid = 'oid='+ oid_num
+        self.writer = writer
+
+        oid = 'oid='+ oid
         for i in tqdm(range(1,aid), desc="Crawling rate", mininterval=0.01):
             #print(i)
             aid = str(i)
@@ -269,6 +273,11 @@ class ArticleCrawler(object):
             proc = Process(target=self.crawling, args=(category_name,))
             proc.start()
             self.crawling(category_name,keyword)
+
+    def keyword_search(self, keyword):
+        self.writer.keyword_search(keyword)
+
+
     def Keyword_crawling(self):
         headers = {'User-Agent':'Mozilla/5.0'}
         url = 'https://search.naver.com/search.naver?sm=tab_hty.top&where=news&query='
