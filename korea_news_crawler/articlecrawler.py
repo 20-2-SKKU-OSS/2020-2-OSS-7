@@ -145,7 +145,7 @@ class ArticleCrawler(object):
 
 
         #,desc="Crawling rate", mininterval=0.01, disable=False
-        for URL in tqdm.gui(day_urls,desc="Crawling rate", mininterval=0.01, disable=False):
+        for URL in tqdm_gui(day_urls,desc="Crawling rate", mininterval=0.01):
             
             regex = re.compile("date=(\d+)")
             news_date = regex.findall(URL)[0]
