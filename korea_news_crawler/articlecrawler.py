@@ -43,6 +43,7 @@ class ArticleCrawler(object):
         self.selected_categories = []
         self.date = {'start_year': 0, 'start_month': 0, 'end_year': 0, 'end_month': 0}
         self.user_operating_system = str(platform.system())
+        self.keyword = ''
 
     #크롤링할 카테고리 설정
     def set_category(self, *args):
@@ -65,6 +66,10 @@ class ArticleCrawler(object):
         for key, date in zip(self.date, args):
             self.date[key] = date
         print(self.date)
+
+    def set_keyword(self, keyword):
+        self.keyword = keyword
+
     @staticmethod
     def make_news_page_url(category_url, start_year, end_year, start_month, end_month):
         made_urls = []
@@ -269,6 +274,7 @@ class ArticleCrawler(object):
             proc = Process(target=self.crawling, args=(category_name,))
             proc.start()
             self.crawling(category_name,keyword)
+
     def Keyword_crawling(self):
         headers = {'User-Agent':'Mozilla/5.0'}
         url = 'https://search.naver.com/search.naver?sm=tab_hty.top&where=news&query='
