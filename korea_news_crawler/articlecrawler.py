@@ -3,10 +3,10 @@
 
 from time import sleep
 from bs4 import BeautifulSoup
-from tqdm import tqdm
+from tqdm import tqdm, tqdm_gui
 from tqdm import trange
 from multiprocessing import Process
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QTextEdit
+from PyQt5.QtWidgets import * #QApplication, QWidget, QLabel, QTextEdit
 
 from exceptions import *
 from articleparser import ArticleParser
@@ -37,7 +37,7 @@ def get_oid():
 
 class ArticleCrawler(object):
     def __init__(self):
-        self.initUI()
+        #self.initUI()
         self.categories = {'정치': 100, '경제': 101, '사회': 102, '생활문화': 103, '세계': 104, 'IT과학': 105, '오피니언': 110,
                            'politics': 100, 'economy': 101, 'society': 102, 'living_culture': 103, 'world': 104, 'IT_science': 105, 'opinion': 110}
         self.selected_categories = []
@@ -314,16 +314,170 @@ class ArticleCrawler(object):
                     headline = headline + ArticleParser.clear_headline(str(tag_headline[0].find_all(text=True)))
                 article_info = document.find_all('div',{'class':'info'})
                 writer.wcsv.writerow([headline,text_sentence,url_a])
-    def initUI(self):
-        app=QApplication(sys.argv)
-        w=QWidget()
-        w.resize(1000, 800)
-        w.setWindowTitle("뉴스 기사 크롤링")
-        w.show()
-        sys.exit(app.exec_())
 
+            self.crawling(category_name)
+
+
+class gui(QWidget):  
+    def __init__(self):
+        super().__init__()
+        self.initUI()
+        self.Crawler = ArticleCrawler()
+        startYear=0
+        startMonth=0
+        endYear=0
+        endMonth=0
+        cat=0
+        press=0
+        num=0
+
+    def initUI(self):
+        label0=QLabel('크롤러를 설정해주세요.', self)
+        label0.move(50, 30)
+        font0=label0.font()
+        font0.setBold(True)
+        font0.setPointSize(14)
+        label0.setFont(font0)
+
+        self.rbtn1=QRadioButton('카테고리별 크롤링', self)
+        self.rbtn2=QRadioButton('언론사별 크롤링', self)
+        self.rbtn1.setChecked(True)
+        self.rbtn1.move(50, 70)
+        self.rbtn2.move(250, 70)
+        self.rbtn1.clicked.connect(self.onClicked)
+        self.rbtn2.clicked.connect(self.onClicked)
+        
+        
+        self.catLabel=QLabel('1. 정치  2. 경제  3. 사회  4. 생활문화  5. 세계  6. IT과학  7. 오피니언', self)
+        self.catLabel.move(50, 100)
+        self.pressLabel=QLabel('1.연합뉴스 2.국민일보 3.매일경제 4.파이낸셜뉴스 5.더팩트 6.이데일리 7.문화일보 8.세계일보 9. 오마이뉴스 10.YTN \n\
+11.SBS 12.점프볼 13.한국일보 14.매일신문 15.스타뉴스 16.OSEN 17.마이데일리 18.데일리안 19.스포탈코리아 20.스포츠경향\n\
+21.포모스 22.아시아경제 23.엑스포츠뉴스 24.베스트일레븐 25.데일리e스포츠 26.게임메카 27.스포츠동아 28.스포츠월드 29.루키 30.MK스포츠\n\
+31.인터풋볼 32.머니S 33.뉴스1 34.풋볼리스트 35.디스이즈게임 36.인벤 37.윈터뉴스 38.스포티비뉴스 39.STN 스포츠 40.스포츠서울', self)
+        self.pressLabel.move(50, 100)
+        self.pressLabel.hide()
+
+        self.selectLabel1=QLabel('카테고리 선택 : ', self)
+        self.selectLabel1.move(50, 130)
+        self.catEdit=QLineEdit(self)
+        self.catEdit.move(168, 128)
+        self.catEdit.textChanged[str].connect(self.catChanged)
+
+        self.timeLabel1=QLabel('시작 년도: ', self)
+        self.timeEdit1=QLineEdit(self)
+        self.timeLabel2=QLabel('시작 월: ', self)
+        self.timeEdit2=QLineEdit(self)
+        self.timeLabel3=QLabel('끝 년도: ', self)
+        self.timeEdit3=QLineEdit(self)
+        self.timeLabel4=QLabel('끝 월: ', self)
+        self.timeEdit4=QLineEdit(self)
+        self.timeLabel1.move(50, 160)
+        self.timeEdit1.move(130, 158)
+        self.timeLabel2.move(340, 160)
+        self.timeEdit2.move(400, 158)
+        self.timeLabel3.move(50, 190)
+        self.timeEdit3.move(120, 188)
+        self.timeLabel4.move(320, 190)
+        self.timeEdit4.move(370, 188)
+
+        self.timeEdit1.textChanged[str].connect(self.timeChanged1)
+        self.timeEdit2.textChanged[str].connect(self.timeChanged2)
+        self.timeEdit3.textChanged[str].connect(self.timeChanged3)
+        self.timeEdit4.textChanged[str].connect(self.timeChanged4)
+
+        self.btn1=QPushButton(self)
+        self.btn1.setText('크롤링 시작')
+        self.btn1.move(50, 225)
+        self.btn1.clicked.connect(self.btn1Clicked)
+        self.option1=[self.selectLabel1, self. catLabel, self.catEdit, self.timeLabel1, self.timeLabel2, self.timeLabel3, self.timeLabel4,\
+            self.timeEdit1, self.timeEdit2, self.timeEdit3, self.timeEdit4, self.btn1]
+
+        self.selectLabel2=QLabel('언론사 선택 : ', self)
+        self.selectLabel2.move(50, 180)
+        self.pressEdit=QLineEdit(self)
+        self.pressEdit.move(155, 180)
+        self.numLabel=QLabel('크롤링할 기사의 개수: ', self)
+        self.numLabel.move(50, 210)
+        self.numEdit=QLineEdit(self)
+        self.numEdit.move(210, 208)
+
+        self.pressEdit.textChanged[str].connect(self.pressChanged)
+        self.numEdit.textChanged[str].connect(self.numChanged)
+
+        self.btn2=QPushButton(self)
+        self.btn2.setText("크롤링 시작")
+        self.btn2.move(50, 250)
+        self.btn2.clicked.connect(self.btn2Clicked)
+        self.option2=[self.pressLabel, self.selectLabel2, self.pressEdit, self.numLabel, self.numEdit, self.btn2]
+        
+
+        for option in self.option2:
+            option.hide()
+        self.resize(1100, 800)
+        self.setWindowTitle("뉴스 기사 크롤링")
+        self.show() 
+
+    def onClicked(self):
+        if self.rbtn1.isChecked():
+            for option in self.option2:
+                option.hide()
+            for option in self.option1:
+                option.show()
+        if self.rbtn2.isChecked():
+            for option in self.option1:
+                option.hide()
+            for option in self.option2:
+                option.show()
+    
+    def catChanged(self, num):
+        if num:
+            self.cat=int(num)
+    def timeChanged1(self, num):
+        if num:
+            self.startYear=int(num)
+    def timeChanged2(self, num):
+        if num:
+            self.startMonth=int(num)
+    def timeChanged3(self, num):
+        if num:
+            self.endYear=int(num)
+    def timeChanged4(self, num):
+        if num:
+            self.endMonth=int(num)
+    def pressChanged(self, num):
+        if num:
+            self.press=int(num)
+    def numChanged(self, num):
+        if num:
+            self.num=int(num)
+    def btn1Clicked(self):
+        if self.cat == 1 :
+            ss1 = "정치"
+        if self.cat == 2 :
+            ss1 = "경제"
+        if self.cat == 3 :
+            ss1 = "사회"
+        if self.cat == 4 :
+            ss1 = "생활문화"
+        if self.cat == 5 :
+            ss1 = "세계"
+        if self.cat == 6 :
+            ss1 = "IT과학"
+        if self.cat == 7 :
+            ss1 = "오피니언"
+        self.Crawler.set_category(ss1)
+        self.Crawler.set_date_range(self.startYear, self.startMonth, self.endYear, self.endMonth)
+        self.Crawler.start()
+    def btn2Clicked(self):
+        #self.Crawler.press_crawling()
+        print("2clicked")
+        
+            
 
 if __name__ == "__main__": 
+    app=QApplication(sys.argv)
+    w=gui()
+    sys.exit(app.exec_())
     Crawler = ArticleCrawler()
     print("1.카테고리 별 크롤링(정치,경제,사회,생활문화...) 2.언론사별 크롤링 3.키워드 크롤링(약간의 오류가 존재)")
     select = int(input())
@@ -375,4 +529,9 @@ if __name__ == "__main__":
             keyword = input()
             Crawler.Keyword_crawling(keyword = keyword)
     
-    
+
+    Crawler.set_date_range(a, b, c, d)
+    Crawler.set_category(ss1)
+    #Crawler.press_crawling()
+    #Crawler.start()
+
