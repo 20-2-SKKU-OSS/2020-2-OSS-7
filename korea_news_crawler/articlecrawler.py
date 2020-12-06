@@ -125,7 +125,7 @@ class ArticleCrawler(object):
         print(category_name + " Urls are generated")
         print("The crawler starts")
 
-        for URL in day_urls:
+        for URL in tqdm(day_urls, desc="Crawling rate", mininterval=0.01):
             
             regex = re.compile("date=(\d+)")
             news_date = regex.findall(URL)[0]
@@ -294,6 +294,6 @@ if __name__ == "__main__":
     Crawler.set_date_range(a, b, c, d)
     Crawler.set_category(ss1)
     Crawler.start()
-    Crawler.press_crawling()
+    #Crawler.press_crawling()
     #Crawler.start()
     
