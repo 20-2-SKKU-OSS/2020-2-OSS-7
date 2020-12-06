@@ -470,7 +470,8 @@ class gui(QWidget):
         self.Crawler.start()
     def btn2Clicked(self):
         #self.Crawler.press_crawling()
-        print("2clicked")
+        #print("2clicked")
+        print("2clicked!")
         
             
 
@@ -536,4 +537,4 @@ if __name__ == "__main__":
     #Crawler.start()
     #Crawler.press_crawling()
   
-  
+
