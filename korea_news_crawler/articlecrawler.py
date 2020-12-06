@@ -8,11 +8,11 @@ from tqdm import trange
 from multiprocessing import Process
 from PyQt5.QtWidgets import * #QApplication, QWidget, QLabel, QTextEdit
 
-from .exceptions import *
-from .articleparser import ArticleParser
-from .writer import Writer
+from exceptions import *
+from articleparser import ArticleParser
+from writer import Writer
 
-from .writer1 import Writer_press
+from writer1 import Writer_press
 import sys
 import os
 import platform
@@ -272,7 +272,7 @@ class ArticleCrawler(object):
         for category_name in self.selected_categories:
             proc = Process(target=self.crawling, args=(category_name,))
             proc.start()
-            self.crawling(category_name,keyword)
+            self.crawling(category_name)
 
     def keyword_search(self, keyword):
         self.writer.keyword_search(keyword)
