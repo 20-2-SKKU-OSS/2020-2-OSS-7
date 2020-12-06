@@ -216,7 +216,7 @@ class ArticleCrawler(object):
         aid = int(input())
         writer = Writer_press(category_name = str(aid),text_c=name )
         oid = 'oid='+ oid_num
-        for i in tqdm_gui(range(1,aid), desc="Crawling rate", mininterval=0.01):
+        for i in tqdm(range(1,aid), desc="Crawling rate", mininterval=0.01):
             #print(i)
             aid = str(i)
             aid_length = len(aid)
@@ -277,10 +277,14 @@ class gui(QWidget):
     def __init__(self):
         super().__init__()
         self.initUI()
+        self.Crawler = ArticleCrawler()
         startYear=0
         startMonth=0
         endYear=0
         endMonth=0
+        cat=0
+        press=0
+        num=0
     def initUI(self):
         label0=QLabel('크롤러를 설정해주세요.', self)
         label0.move(50, 30)
@@ -311,6 +315,7 @@ class gui(QWidget):
         self.selectLabel1.move(50, 130)
         self.catEdit=QLineEdit(self)
         self.catEdit.move(168, 128)
+        self.catEdit.textChanged[str].connect(self.catChanged)
 
         self.timeLabel1=QLabel('시작 년도: ', self)
         self.timeEdit1=QLineEdit(self)
@@ -333,24 +338,35 @@ class gui(QWidget):
         self.timeEdit2.textChanged[str].connect(self.timeChanged2)
         self.timeEdit3.textChanged[str].connect(self.timeChanged3)
         self.timeEdit4.textChanged[str].connect(self.timeChanged4)
+
+        self.btn1=QPushButton(self)
+        self.btn1.setText('크롤링 시작')
+        self.btn1.move(50, 225)
+        self.btn1.clicked.connect(self.btn1Clicked)
         self.option1=[self.selectLabel1, self. catLabel, self.catEdit, self.timeLabel1, self.timeLabel2, self.timeLabel3, self.timeLabel4,\
-            self.timeEdit1, self.timeEdit2, self.timeEdit3, self.timeEdit4]
+            self.timeEdit1, self.timeEdit2, self.timeEdit3, self.timeEdit4, self.btn1]
 
         self.selectLabel2=QLabel('언론사 선택 : ', self)
         self.selectLabel2.move(50, 180)
-        self.selectLabel2.hide()
         self.pressEdit=QLineEdit(self)
         self.pressEdit.move(155, 180)
-        self.pressEdit.hide()
         self.numLabel=QLabel('크롤링할 기사의 개수: ', self)
         self.numLabel.move(50, 210)
         self.numEdit=QLineEdit(self)
-        self.numEdit.hide()
         self.numEdit.move(210, 208)
-        self.numLabel.hide()
-        self.option2=[self.pressLabel, self.selectLabel2, self.pressEdit, self.numLabel, self.numEdit]
+
+        self.pressEdit.textChanged[str].connect(self.pressChanged)
+        self.numEdit.textChanged[str].connect(self.numChanged)
+
+        self.btn2=QPushButton(self)
+        self.btn2.setText("크롤링 시작")
+        self.btn2.move(50, 250)
+        self.btn2.clicked.connect(self.btn2Clicked)
+        self.option2=[self.pressLabel, self.selectLabel2, self.pressEdit, self.numLabel, self.numEdit, self.btn2]
         
 
+        for option in self.option2:
+            option.hide()
         self.resize(1100, 800)
         self.setWindowTitle("뉴스 기사 크롤링")
         self.show() 
@@ -367,6 +383,8 @@ class gui(QWidget):
             for option in self.option2:
                 option.show()
     
+    def catChanged(self, num):
+        self.cat=int(num)
     def timeChanged1(self, num):
         self.startYear=int(num)
     def timeChanged2(self, num):
@@ -375,6 +393,30 @@ class gui(QWidget):
         self.endYear=int(num)
     def timeChanged4(self, num):
         self.endMonth=int(num)
+    def pressChanged(self, num):
+        self.press=int(num)
+    def numChanged(self, num):
+        self.num=int(num)
+    def btn1Clicked(self):
+        if self.cat == 1 :
+            ss1 = "정치"
+        if self.cat == 2 :
+            ss1 = "경제"
+        if self.cat == 3 :
+            ss1 = "사회"
+        if self.cat == 4 :
+            ss1 = "생활문화"
+        if self.cat == 5 :
+            ss1 = "세계"
+        if self.cat == 6 :
+            ss1 = "IT과학"
+        if self.cat == 7 :
+            ss1 = "오피니언"
+        self.Crawler.set_category(ss1)
+        self.Crawler.set_date_range(self.startYear, self.startMonth, self.endYear, self.endMonth)
+        self.Crawler.start()
+    def btn2Clicked(self):
+        print("2clicked")
         
             
 
