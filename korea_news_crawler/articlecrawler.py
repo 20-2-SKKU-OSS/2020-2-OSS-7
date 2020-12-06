@@ -146,7 +146,6 @@ class ArticleCrawler(object):
         print("The crawler starts")
 
 
-        #,desc="Crawling rate", mininterval=0.01, disable=False
         for URL in tqdm(day_urls,desc="Crawling rate", mininterval=0.01):
             self.num+=1 
             regex = re.compile("date=(\d+)")
@@ -408,8 +407,8 @@ class gui(QWidget):
         self.btn1.clicked.connect(self.btn1Clicked)
 
         self.btn3=QPushButton(self)
-        self.btn3.setText('진행상황')
-        self.btn3.move(50, 300)
+        self.btn3.setText('진행상황 업데이트')
+        self.btn3.move(50, 310)
         self.btn3.clicked.connect(self.btn3Clicked)
 
         
@@ -418,7 +417,7 @@ class gui(QWidget):
         #self.th.change_value.connect(self.pbar.setValue)
         
         self.option1=[self.selectLabel1, self. catLabel, self.catEdit, self.timeLabel1, self.timeLabel2, self.timeLabel3, self.timeLabel4,\
-            self.timeEdit1, self.timeEdit2, self.timeEdit3, self.timeEdit4, self.btn1]
+            self.timeEdit1, self.timeEdit2, self.timeEdit3, self.timeEdit4, self.btn1, self.btn3]
 
         self.selectLabel2=QLabel('언론사 선택 : ', self)
         self.selectLabel2.move(50, 180)
@@ -504,28 +503,10 @@ class gui(QWidget):
         #print("2clicked")
         print("2clicked!")
     def btn3Clicked(self):
-        value=(Crawler.num/len(Crawler.made_urls))*100
-        self.pbar.setValue(value)
-        print(str(value))
-    def updateUI(self):
-        self.completed=0
-        while self.completed<100:
-            QThread.msleep(1)
-            self.completed+=1
-            if len(Crawler.made_urls) !=0 :
-                self.pbar.setValue((Crawler.num/len(Crawler.made_urls))*100)
-
-class update(QThread):
-    change_value=pyqtSignal(int)
-    def run(self):
-        print("run")
-        Crawler.start()
-        '''
-        while len(w.Crawler.made_urls) !=0:
-            value=self.Crawler.num/len(self.Crawler.made_urls)*100
-            print(value)
-            self.change_value.emit(value)
-        '''
+        if len(Crawler.made_urls) !=0 :
+            value=(Crawler.num/len(Crawler.made_urls))*100
+            self.pbar.setValue(value)
+    
 Crawler = ArticleCrawler()
 if __name__ == "__main__": 
     app=QApplication(sys.argv)
