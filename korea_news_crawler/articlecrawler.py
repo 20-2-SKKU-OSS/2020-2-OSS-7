@@ -535,5 +535,4 @@ if __name__ == "__main__":
     Crawler.set_category(ss1)
     #Crawler.start()
     #Crawler.press_crawling()
-
-    #Crawler.start()    
+  
