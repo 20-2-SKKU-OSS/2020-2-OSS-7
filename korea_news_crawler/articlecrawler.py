@@ -285,6 +285,7 @@ class gui(QWidget):
         cat=0
         press=0
         num=0
+        
     def initUI(self):
         label0=QLabel('크롤러를 설정해주세요.', self)
         label0.move(50, 30)
