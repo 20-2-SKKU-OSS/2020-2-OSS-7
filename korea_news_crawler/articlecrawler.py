@@ -305,6 +305,14 @@ class gui(QWidget):
 
         self.selectLabel1=QLabel('카테고리 선택 : ', self)
         self.selectLabel1.move(50, 130)
+        self.catEdit=QLineEdit(self)
+        self.catEdit.move(168, 128)
+
+        self.timeLabel1=QLabel('시작 년도: ', self)
+        self.timeLabel2=QLabel('시작 월: ', self)
+        self.timeLabel3=QLabel('끝 년도: ', self)
+        self.timeLabel4=QLabel('끝 월: ', self)
+        
         
 
         self.resize(1100, 800)
