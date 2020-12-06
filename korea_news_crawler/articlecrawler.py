@@ -207,13 +207,11 @@ class ArticleCrawler(object):
                     pass
         writer.close()
 
-    def press_crawling(self, oid=215, aid=20):
+    def press_crawling(self, oid, aid, name):
         headers = {'User-Agent':'Mozilla/5.0'}
         
         url = 'https://sports.news.naver.com/news.nhn?'
-        oid_num, name = get_oid()
-        print("몇 개의 기사를 크롤링 할까요?")
-        aid = int(input())
+        
         writer = Writer_press(category_name = str(aid),text_c=name )
         oid = 'oid='+ oid_num
         for i in tqdm(range(1,aid), desc="Crawling rate", mininterval=0.01):
@@ -324,8 +322,10 @@ if __name__ == "__main__":
             Crawler.start()
               
     if(select == 2):
-            Crawler.press_crawling()
-    
+            oid_num, name = get_oid()
+            print("몇 개의 기사를 크롤링 할까요?")
+            aid = int(input())
+            Crawler.press_crawling(oid = oid_num , aid = aid , name = name)
 
     Crawler.set_date_range(a, b, c, d)
     Crawler.set_category(ss1)
