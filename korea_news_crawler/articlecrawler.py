@@ -505,8 +505,8 @@ class gui(QWidget):
         x.start()
         
     def btn2Clicked(self):
-        oid, name = get_oid(self.press)
-        x=crawler2(self, oid, self.num, name)
+        self.oid, self.name = get_oid(self.press)
+        x=crawler2(self)
         x.start()
         
     def btn3Clicked(self):
@@ -522,9 +522,9 @@ class gui(QWidget):
 class crawler1(QThread):
     def run(self):
         Crawler.start()
-class crawler2(QThread, oid, aid, name):
+class crawler2(QThread):
     def run(self):
-        Crawler.press_crawling(oid = oid, aid = aid, name = name)
+        Crawler.press_crawling(oid = w.oid, aid = w.num, name = w.name)
         
 Crawler = ArticleCrawler()
 if __name__ == "__main__": 
