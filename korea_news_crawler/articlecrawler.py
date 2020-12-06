@@ -333,13 +333,22 @@ class gui(QWidget):
         self.timeEdit2.textChanged[str].connect(self.timeChanged2)
         self.timeEdit3.textChanged[str].connect(self.timeChanged3)
         self.timeEdit4.textChanged[str].connect(self.timeChanged4)
+        self.option1=[self.selectLabel1, self. catLabel, self.catEdit, self.timeLabel1, self.timeLabel2, self.timeLabel3, self.timeLabel4,\
+            self.timeEdit1, self.timeEdit2, self.timeEdit3, self.timeEdit4]
 
-        self.selectLabel2=QLabel('언론사 선택 : ')
-        self.selectLabel2.move(50, 130)
+        self.selectLabel2=QLabel('언론사 선택 : ', self)
+        self.selectLabel2.move(50, 180)
         self.selectLabel2.hide()
         self.pressEdit=QLineEdit(self)
-        self.pressEdit.move(168, 128)
+        self.pressEdit.move(155, 180)
         self.pressEdit.hide()
+        self.numLabel=QLabel('크롤링할 기사의 개수: ', self)
+        self.numLabel.move(50, 210)
+        self.numEdit=QLineEdit(self)
+        self.numEdit.hide()
+        self.numEdit.move(210, 208)
+        self.numLabel.hide()
+        self.option2=[self.pressLabel, self.selectLabel2, self.pressEdit, self.numLabel, self.numEdit]
         
 
         self.resize(1100, 800)
@@ -348,11 +357,15 @@ class gui(QWidget):
 
     def onClicked(self):
         if self.rbtn1.isChecked():
-            
+            for option in self.option2:
+                option.hide()
+            for option in self.option1:
+                option.show()
         if self.rbtn2.isChecked():
-            self.catLabel.setText("clicked")
-            self.catLabel.hide()
-            self.pressLabel.show()
+            for option in self.option1:
+                option.hide()
+            for option in self.option2:
+                option.show()
     
     def timeChanged1(self, num):
         self.startYear=int(num)
