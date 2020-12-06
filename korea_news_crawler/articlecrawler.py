@@ -505,12 +505,15 @@ class gui(QWidget):
         print("2clicked!")
     def btn3Clicked(self):
         value=(Crawler.num/len(Crawler.made_urls))*100
-        print(str(Crawler.num))
+        self.pbar.setValue(value)
+        print(str(value))
     def updateUI(self):
         self.completed=0
         while self.completed<100:
+            QThread.msleep(1)
             self.completed+=1
-            self.pbar.setValue(self.completed)
+            if len(Crawler.made_urls) !=0 :
+                self.pbar.setValue((Crawler.num/len(Crawler.made_urls))*100)
 
 class update(QThread):
     change_value=pyqtSignal(int)
