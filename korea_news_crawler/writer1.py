@@ -3,12 +3,12 @@ import platform
 
 
 class Writer_press(object):
-    def __init__(self, category_name):
+    def __init__(self, category_name,text_c):
         self.user_operating_system = str(platform.system())
 
         self.category_name = category_name
         # 이부분 추가
-        self.text_company = 'aa'
+        self.text_company = text_c
         #
         '''
         self.date = "date"
@@ -37,8 +37,8 @@ class Writer_press(object):
 
     def initialize_file(self):
         if self.user_operating_system == "Windows":
-            self.file = open('Article_' + self.category_name + '_' + str(self.text_company) + '.csv', 'w',
-                             encoding='euc-kr',
+            self.file = open('Article_' +str(self.text_company)+ self.category_name + '_' +  '.csv', 'w',
+                             encoding='utf-8',
                              newline='')
         # Other OS uses utf-8
         else:
