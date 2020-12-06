@@ -309,10 +309,17 @@ class gui(QWidget):
         self.catEdit.move(168, 128)
 
         self.timeLabel1=QLabel('시작 년도: ', self)
+        self.timeEdit1=QLineEdit(self)
         self.timeLabel2=QLabel('시작 월: ', self)
+        self.timeEdit2=QLineEdit(self)
         self.timeLabel3=QLabel('끝 년도: ', self)
+        self.timeEdit3=QLineEdit(self)
         self.timeLabel4=QLabel('끝 월: ', self)
-        
+        self.timeEdit4=QLineEdit(self)
+        self.timeLabel1.move(50, 160)
+        self.timeEdit1.move(130, 158)
+        self.timeLabel2.move(340, 160)
+        self.timeEdit2.move(400, 158)
         
 
         self.resize(1100, 800)
