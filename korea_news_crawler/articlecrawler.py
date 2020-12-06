@@ -22,7 +22,7 @@ import calendar
 import requests
 import re
 
-def get_oid():
+def get_oid(oid_num):
         oid = ['001','005','009','014','629','018','021','022','047','052','055','065',' 469','088','108','109','117','119','139','144','236','277','311','343','347','356', '382','396','398','410','413','417','421','436','439','442','445','477','450','468']
         name = ["연합뉴스","국민일보","매일경제", "파이낸셜뉴스","더팩트","이데일리","문화일보","세계일보","오마이뉴스","YTN","SBS","점프볼","한국일보","매일신문","스타뉴스",
             "OSEN","마이데일리","데일리안","스포탈코리아","스포츠경향","포모스","아시아경제","엑스포츠뉴스","베스트일레븐","데일리e스포츠","게임메카","스포츠동아","스포츠월드","루키","MK스포츠",
@@ -32,7 +32,7 @@ def get_oid():
         print("16.OSEN\n17.마이데일리\n18.데일리안\n19.스포탈코리아\n20.스포츠경향\n21.포모스\n22.아시아경제\n23.엑스포츠뉴스\n24.베스트일레븐\n25.데일리e스포츠\n26.게임메카\n27.스포츠동아\n28.스포츠월드\n29.루키\n30.MK스포츠")
         print("31.인터풋볼\n32.머니S\n33.뉴스1\n34.풋볼리스트\n35.디스이즈게임\n36.인벤\n37.윈터뉴스\n38.스포티비뉴스\n39.STN 스포츠\n40.스포츠서울\n")
         uinput = input("원하는 언론사 번호를 입력하세요: ")
-        oid_num = int(uinput)
+        #oid_num = int(uinput)
         result = oid[oid_num-1]
         return result, name[oid_num-1]
 
@@ -407,14 +407,13 @@ class gui(QWidget):
         self.btn1.clicked.connect(self.btn1Clicked)
 
         self.btn3=QPushButton(self)
-        self.btn3.setText('진행상황 업데이트')
-        self.btn3.move(50, 310)
+        self.btn3.setText('진행상황')
+        self.btn3.move(50, 300)
         self.btn3.clicked.connect(self.btn3Clicked)
 
         
         self.pbar=QProgressBar(self)
         self.pbar.setGeometry(50, 270, 400, 30)
-        #self.th.change_value.connect(self.pbar.setValue)
         
         self.option1=[self.selectLabel1, self. catLabel, self.catEdit, self.timeLabel1, self.timeLabel2, self.timeLabel3, self.timeLabel4,\
             self.timeEdit1, self.timeEdit2, self.timeEdit3, self.timeEdit4, self.btn1, self.btn3]
@@ -497,16 +496,22 @@ class gui(QWidget):
         #self.Crawler.start()
         x=update(self)
         x.start()
-        self.updateUI()
+        
     def btn2Clicked(self):
-        #self.Crawler.press_crawling()
-        #print("2clicked")
+        oid, name = get_oid(self.press)
+        Crawler.press_crawling(oid = oid, aid = self.num, name = name)
         print("2clicked!")
     def btn3Clicked(self):
         if len(Crawler.made_urls) !=0 :
             value=(Crawler.num/len(Crawler.made_urls))*100
             self.pbar.setValue(value)
+        print(str(value))
     
+
+class update(QThread):
+    def run(self):
+        Crawler.start()
+        
 Crawler = ArticleCrawler()
 if __name__ == "__main__": 
     app=QApplication(sys.argv)
