@@ -530,12 +530,8 @@ if __name__ == "__main__":
             Crawler.Keyword_crawling(keyword = keyword)
     
 
-
     Crawler.set_date_range(a, b, c, d)
     Crawler.set_category(ss1)
-    #Crawler.start()
     #Crawler.press_crawling()
-
     #Crawler.start()
 
-    
