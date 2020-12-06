@@ -301,7 +301,7 @@ class gui(QWidget):
 
         self.resize(1000, 800)
         self.setWindowTitle("뉴스 기사 크롤링")
-        self.show()
+        self.show() 
 
     def onClicked2(self):
         if self.rbtn2.isChecked():
