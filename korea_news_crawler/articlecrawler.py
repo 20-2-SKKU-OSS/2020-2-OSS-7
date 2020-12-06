@@ -387,17 +387,23 @@ class gui(QWidget):
         if num:
             self.cat=int(num)
     def timeChanged1(self, num):
-        self.startYear=int(num)
+        if num:
+            self.startYear=int(num)
     def timeChanged2(self, num):
-        self.startMonth=int(num)
+        if num:
+            self.startMonth=int(num)
     def timeChanged3(self, num):
-        self.endYear=int(num)
+        if num:
+            self.endYear=int(num)
     def timeChanged4(self, num):
-        self.endMonth=int(num)
+        if num:
+            self.endMonth=int(num)
     def pressChanged(self, num):
-        self.press=int(num)
+        if num:
+            self.press=int(num)
     def numChanged(self, num):
-        self.num=int(num)
+        if num:
+            self.num=int(num)
     def btn1Clicked(self):
         if self.cat == 1 :
             ss1 = "정치"
