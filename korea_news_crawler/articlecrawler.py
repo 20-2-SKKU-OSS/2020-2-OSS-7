@@ -207,13 +207,11 @@ class ArticleCrawler(object):
                     pass
         writer.close()
 
-    def press_crawling(self, oid=215, aid=20):
+    def press_crawling(self, oid, aid, name):
         headers = {'User-Agent':'Mozilla/5.0'}
         
         url = 'https://sports.news.naver.com/news.nhn?'
-        oid_num, name = get_oid()
-        print("몇 개의 기사를 크롤링 할까요?")
-        aid = int(input())
+        
         writer = Writer_press(category_name = str(aid),text_c=name )
         oid = 'oid='+ oid_num
         for i in tqdm(range(1,aid), desc="Crawling rate", mininterval=0.01):
@@ -270,6 +268,53 @@ class ArticleCrawler(object):
         for category_name in self.selected_categories:
             proc = Process(target=self.crawling, args=(category_name,))
             proc.start()
+            self.crawling(category_name,keyword)
+    def Keyword_crawling(self):
+        headers = {'User-Agent':'Mozilla/5.0'}
+        url = 'https://search.naver.com/search.naver?sm=tab_hty.top&where=news&query='
+        url = url + keyword
+        list_a = []
+        for i in tqdm(range(0,20),desc="append url list", mininterval = 0.01):
+            s_num = "&start="+str(i)+"1"
+            b = requests.get(url+s_num, headers = headers)
+            document = BeautifulSoup(b.content, 'html.parser')
+            writer = Writer_press(category_name = '_'+keyword,text_c="Keyword_crawling" )
+            list_url = document.select('.list_news .info')
+            
+            for line in list_url:
+                list_a.append(line.get('href'))
+                #print(line.get('href'))
+            print('')
+        list_b = []
+        list_c = []
+        for line in list_a:
+            if(line == None):
+                continue
+            elif(line.find('naver') != -1):
+                list_b.append(line)
+        for line in list_b:
+            fnum = line.find('oid')
+            if len(line[fnum:]) == 22:
+                list_c.append(line[fnum:])
+        url = 'https://sports.news.naver.com/news.nhn?'
+        list_num = len(list_c)
+        print(list_c)
+        for i in tqdm(range(0,list_num),desc="Crawling rate", mininterval=0.01):
+            print('')
+            url_a = url + list_c[i]
+            b = requests.get(url_a,headers=headers)
+            document = BeautifulSoup(b.content, 'html.parser')
+            tag_content = document.find_all('div', {'id': 'newsEndContents'})
+            if len(tag_content) != 0:
+                text_sentence = ''
+                text_sentence = text_sentence + ArticleParser.clear_content(str(tag_content[0].find_all(text=True)))
+                headline = ''
+                tag_headline = document.find_all('h4', {'class':'title'})
+                if(len(tag_headline) != 0):
+                    headline = headline + ArticleParser.clear_headline(str(tag_headline[0].find_all(text=True)))
+                article_info = document.find_all('div',{'class':'info'})
+                writer.wcsv.writerow([headline,text_sentence,url_a])
+
             self.crawling(category_name)
 
 
@@ -285,6 +330,7 @@ class gui(QWidget):
         cat=0
         press=0
         num=0
+
     def initUI(self):
         label0=QLabel('크롤러를 설정해주세요.', self)
         label0.move(50, 30)
@@ -433,7 +479,7 @@ if __name__ == "__main__":
     w=gui()
     sys.exit(app.exec_())
     Crawler = ArticleCrawler()
-    print("1.카테고리 별 크롤링(정치,경제,사회,생활문화...) 2.언론사별 크롤링")
+    print("1.카테고리 별 크롤링(정치,경제,사회,생활문화...) 2.언론사별 크롤링 3.키워드 크롤링(약간의 오류가 존재)")
     select = int(input())
     #Crawler.set_category("생활문화")
     if(select == 1):
@@ -474,8 +520,16 @@ if __name__ == "__main__":
             Crawler.start()
               
     if(select == 2):
-            Crawler.press_crawling()
+            oid_num, name = get_oid()
+            print("몇 개의 기사를 크롤링 할까요?")
+            aid = int(input())
+            Crawler.press_crawling(oid = oid_num , aid = aid , name = name)
+    if(select == 3):
+            print("검색할 단어를 입력해 주세요:")
+            keyword = input()
+            Crawler.Keyword_crawling(keyword = keyword)
     
+
 
     Crawler.set_date_range(a, b, c, d)
     Crawler.set_category(ss1)
@@ -483,4 +537,5 @@ if __name__ == "__main__":
     #Crawler.press_crawling()
 
     #Crawler.start()
+
     
