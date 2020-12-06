@@ -37,7 +37,7 @@ def get_oid():
 
 class ArticleCrawler(object):
     def __init__(self):
-        self.initUI()
+        #self.initUI()
         self.categories = {'정치': 100, '경제': 101, '사회': 102, '생활문화': 103, '세계': 104, 'IT과학': 105, '오피니언': 110,
                            'politics': 100, 'economy': 101, 'society': 102, 'living_culture': 103, 'world': 104, 'IT_science': 105, 'opinion': 110}
         self.selected_categories = []
@@ -272,30 +272,45 @@ class ArticleCrawler(object):
             proc.start()
             self.crawling(category_name)
 
+
+class gui(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.initUI()
     def initUI(self):
-        app=QApplication(sys.argv)
-        w=QWidget()
-        label0=QLabel('크롤러를 설정해주세요.', w)
+        label0=QLabel('크롤러를 설정해주세요.', self)
         label0.move(50, 30)
         font0=label0.font()
         font0.setBold(True)
         font0.setPointSize(14)
         label0.setFont(font0)
-        rbtn1=QRadioButton('카테고리별 크롤링', w)
-        rbtn2=QRadioButton('언론사별 크롤링', w)
-        rbtn1.move(50, 70)
-        rbtn2.move(250, 70)
 
+        self.rbtn1=QRadioButton('카테고리별 크롤링', self)
+        self.rbtn2=QRadioButton('언론사별 크롤링', self)
+        self.rbtn1.setChecked(True)
+        self.rbtn1.move(50, 70)
+        self.rbtn2.move(250, 70)
+        #w.rbtn1.toggled.connect(self.onClicked)
+        self.rbtn2.clicked.connect(self.onClicked2)
         
         
+        self.selectLabel=QLabel('1. 정치  2. 경제  3. 사회  4. 생활문화  5. 세계  6. IT과학  7. 오피니언', self)
+        self.selectLabel.move(50, 100)
+            
+        
 
-        w.resize(1000, 800)
-        w.setWindowTitle("뉴스 기사 크롤링")
-        w.show()
-        sys.exit(app.exec_())
+        self.resize(1000, 800)
+        self.setWindowTitle("뉴스 기사 크롤링")
+        self.show()
 
+    def onClicked2(self):
+        if self.rbtn2.isChecked():
+            self.selectLabel.setText("clicked")
 
 if __name__ == "__main__": 
+    app=QApplication(sys.argv)
+    w=gui()
+    sys.exit(app.exec_())
     Crawler = ArticleCrawler()
     print("1.카테고리 별 크롤링(정치,경제,사회,생활문화...) 2.언론사별 크롤링")
     select = int(input())
