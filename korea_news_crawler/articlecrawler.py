@@ -43,6 +43,9 @@ class ArticleCrawler(object):
         self.selected_categories = []
         self.date = {'start_year': 0, 'start_month': 0, 'end_year': 0, 'end_month': 0}
         self.user_operating_system = str(platform.system())
+        self.writer = None
+        self.made_urls = []
+        self.num=0
 
     #크롤링할 카테고리 설정
     def set_category(self, *args):
@@ -65,9 +68,10 @@ class ArticleCrawler(object):
         for key, date in zip(self.date, args):
             self.date[key] = date
         print(self.date)
+
     @staticmethod
-    def make_news_page_url(category_url, start_year, end_year, start_month, end_month):
-        made_urls = []
+    def make_news_page_url(self, category_url, start_year, end_year, start_month, end_month):
+        
         
         for year in range(start_year, end_year + 1):
             
@@ -103,8 +107,8 @@ class ArticleCrawler(object):
                     totalpage = ArticleParser.find_news_totalpage(url + "&page=10000")
                     
                     for page in range(1, totalpage + 1):
-                        made_urls.append(url + "&page=" + str(page))
-        return made_urls
+                        self.made_urls.append(url + "&page=" + str(page))
+        return self.made_urls
 
     @staticmethod
     def get_url_data(url, max_tries=10):
@@ -129,18 +133,19 @@ class ArticleCrawler(object):
         print(category_name + " PID: " + str(os.getpid()))    
 
         writer = Writer(category_name=category_name, date=self.date)
-        
+        self.writer = writer
         # 기사 URL 형식
         url = "http://news.naver.com/main/list.nhn?mode=LSD&mid=sec&sid1=" + str(self.categories.get(category_name)) + "&date="
 
         # start_year년 start_month월 ~ end_year의 end_month 날짜까지 기사를 수집합니다.
-        day_urls = self.make_news_page_url(url, self.date['start_year'], self.date['end_year'], self.date['start_month'], self.date['end_month'])
+        day_urls = self.make_news_page_url(self, url, self.date['start_year'], self.date['end_year'], self.date['start_month'], self.date['end_month'])
         print(category_name + " Urls are generated")
         print("The crawler starts")
 
 
-
+        
         for URL in tqdm(day_urls,desc="Crawling rate", mininterval=0.01):
+            
             regex = re.compile("date=(\d+)")
             news_date = regex.findall(URL)[0]
 
@@ -205,6 +210,7 @@ class ArticleCrawler(object):
                     # wcsv.writerow([ex, content_url])
                     del request_content, document_content
                     pass
+        self.num+=1        
         writer.close()
 
     def press_crawling(self, oid, aid, name):
@@ -213,7 +219,9 @@ class ArticleCrawler(object):
         url = 'https://sports.news.naver.com/news.nhn?'
         
         writer = Writer_press(category_name = str(aid),text_c=name )
-        oid = 'oid='+ oid_num
+        self.writer = writer
+
+        oid = 'oid='+ oid
         for i in tqdm(range(1,aid), desc="Crawling rate", mininterval=0.01):
             #print(i)
             aid = str(i)
@@ -268,7 +276,12 @@ class ArticleCrawler(object):
         for category_name in self.selected_categories:
             proc = Process(target=self.crawling, args=(category_name,))
             proc.start()
-            self.crawling(category_name,keyword)
+            self.crawling(category_name)
+
+    def keyword_search(self, keyword):
+        self.writer.keyword_search(keyword)
+
+
     def Keyword_crawling(self):
         headers = {'User-Agent':'Mozilla/5.0'}
         url = 'https://search.naver.com/search.naver?sm=tab_hty.top&where=news&query='
@@ -322,7 +335,7 @@ class gui(QWidget):
     def __init__(self):
         super().__init__()
         self.initUI()
-        self.Crawler = ArticleCrawler()
+        
         startYear=0
         startMonth=0
         endYear=0
@@ -332,6 +345,7 @@ class gui(QWidget):
         num=0
 
     def initUI(self):
+        self.Crawler = ArticleCrawler()
         label0=QLabel('크롤러를 설정해주세요.', self)
         label0.move(50, 30)
         font0=label0.font()
@@ -389,6 +403,13 @@ class gui(QWidget):
         self.btn1.setText('크롤링 시작')
         self.btn1.move(50, 225)
         self.btn1.clicked.connect(self.btn1Clicked)
+        self.pbar=QProgressBar(self)
+        self.pbar.setGeometry(50, 270, 400, 30)
+        if len(self.Crawler.made_urls)!=0:
+            self.pbar.setValue(self.Crawler.num/len(self.Crawler.made_urls)*100)
+        else:
+            self.pbar.setValue(0)
+
         self.option1=[self.selectLabel1, self. catLabel, self.catEdit, self.timeLabel1, self.timeLabel2, self.timeLabel3, self.timeLabel4,\
             self.timeEdit1, self.timeEdit2, self.timeEdit3, self.timeEdit4, self.btn1]
 
@@ -531,10 +552,8 @@ if __name__ == "__main__":
             Crawler.Keyword_crawling(keyword = keyword)
     
 
-
     Crawler.set_date_range(a, b, c, d)
     Crawler.set_category(ss1)
-    #Crawler.start()
     #Crawler.press_crawling()
-  
+
 
