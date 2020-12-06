@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 from tqdm import tqdm
 from tqdm import trange
 from multiprocessing import Process
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QTextEdit
+from PyQt5.QtWidgets import * #QApplication, QWidget, QLabel, QTextEdit
 
 from exceptions import *
 from articleparser import ArticleParser
@@ -275,6 +275,20 @@ class ArticleCrawler(object):
     def initUI(self):
         app=QApplication(sys.argv)
         w=QWidget()
+        label0=QLabel('크롤러를 설정해주세요.', w)
+        label0.move(50, 30)
+        font0=label0.font()
+        font0.setBold(True)
+        font0.setPointSize(14)
+        label0.setFont(font0)
+        rbtn1=QRadioButton('카테고리별 크롤링', w)
+        rbtn2=QRadioButton('언론사별 크롤링', w)
+        rbtn1.move(50, 70)
+        rbtn2.move(250, 70)
+
+        
+        
+
         w.resize(1000, 800)
         w.setWindowTitle("뉴스 기사 크롤링")
         w.show()
