@@ -110,6 +110,7 @@ class ArticleCrawler(object):
                     
                     for page in range(1, totalpage + 1):
                         self.made_urls.append(url + "&page=" + str(page))
+        print("url개수: "+str(len(self.made_urls)))
         return self.made_urls
 
     @staticmethod
@@ -147,7 +148,7 @@ class ArticleCrawler(object):
 
         #,desc="Crawling rate", mininterval=0.01, disable=False
         for URL in tqdm(day_urls,desc="Crawling rate", mininterval=0.01):
-            
+            self.num+=1 
             regex = re.compile("date=(\d+)")
             news_date = regex.findall(URL)[0]
 
@@ -212,7 +213,7 @@ class ArticleCrawler(object):
                     # wcsv.writerow([ex, content_url])
                     del request_content, document_content
                     pass
-        self.num+=1        
+                  
         writer.close()
 
     def press_crawling(self, oid, aid, name):
@@ -406,6 +407,11 @@ class gui(QWidget):
         self.btn1.move(50, 225)
         self.btn1.clicked.connect(self.btn1Clicked)
 
+        self.btn3=QPushButton(self)
+        self.btn3.setText('진행상황')
+        self.btn3.move(50, 300)
+        self.btn3.clicked.connect(self.btn3Clicked)
+
         
         self.pbar=QProgressBar(self)
         self.pbar.setGeometry(50, 270, 400, 30)
@@ -487,14 +493,19 @@ class gui(QWidget):
             ss1 = "IT과학"
         if self.cat == 7 :
             ss1 = "오피니언"
-        self.Crawler.set_category(ss1)
-        self.Crawler.set_date_range(self.startYear, self.startMonth, self.endYear, self.endMonth)
-        self.Crawler.start()
+        Crawler.set_category(ss1)
+        Crawler.set_date_range(self.startYear, self.startMonth, self.endYear, self.endMonth)
+        #self.Crawler.start()
+        x=update(self)
+        x.start()
         self.updateUI()
     def btn2Clicked(self):
         #self.Crawler.press_crawling()
         #print("2clicked")
         print("2clicked!")
+    def btn3Clicked(self):
+        value=(Crawler.num/len(Crawler.made_urls))*100
+        print(str(Crawler.num))
     def updateUI(self):
         self.completed=0
         while self.completed<100:
@@ -505,17 +516,19 @@ class update(QThread):
     change_value=pyqtSignal(int)
     def run(self):
         print("run")
+        Crawler.start()
+        '''
         while len(w.Crawler.made_urls) !=0:
             value=self.Crawler.num/len(self.Crawler.made_urls)*100
             print(value)
             self.change_value.emit(value)
-
-
+        '''
+Crawler = ArticleCrawler()
 if __name__ == "__main__": 
     app=QApplication(sys.argv)
     w=gui()
     sys.exit(app.exec_())
-    Crawler = ArticleCrawler()
+    
     print("1.카테고리 별 크롤링(정치,경제,사회,생활문화...) 2.언론사별 크롤링 3.키워드 크롤링(약간의 오류가 존재)")
     select = int(input())
     #Crawler.set_category("생활문화")
