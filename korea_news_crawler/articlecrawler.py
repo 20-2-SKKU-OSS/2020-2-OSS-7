@@ -31,7 +31,7 @@ def get_oid(oid_num):
         print("\n1.연합뉴스\n2.국민일보\n3.매일경제 \n4.파이낸셜뉴스\n5.더팩트\n6.이데일리\n7.문화일보\n8.세계일보\n9. 오마이뉴스\n10.YTN\n11.SBS\n12.점프볼\n13.한국일보\n14.매일신문\n15.스타뉴스") 
         print("16.OSEN\n17.마이데일리\n18.데일리안\n19.스포탈코리아\n20.스포츠경향\n21.포모스\n22.아시아경제\n23.엑스포츠뉴스\n24.베스트일레븐\n25.데일리e스포츠\n26.게임메카\n27.스포츠동아\n28.스포츠월드\n29.루키\n30.MK스포츠")
         print("31.인터풋볼\n32.머니S\n33.뉴스1\n34.풋볼리스트\n35.디스이즈게임\n36.인벤\n37.윈터뉴스\n38.스포티비뉴스\n39.STN 스포츠\n40.스포츠서울\n")
-        uinput = input("원하는 언론사 번호를 입력하세요: ")
+        #uinput = input("원하는 언론사 번호를 입력하세요: ")
         #oid_num = int(uinput)
         result = oid[oid_num-1]
         return result, name[oid_num-1]
@@ -500,7 +500,7 @@ class gui(QWidget):
     def btn2Clicked(self):
         oid, name = get_oid(self.press)
         Crawler.press_crawling(oid = oid, aid = self.num, name = name)
-        print("2clicked!")
+        
     def btn3Clicked(self):
         if len(Crawler.made_urls) !=0 :
             value=(Crawler.num/len(Crawler.made_urls))*100
@@ -516,7 +516,7 @@ Crawler = ArticleCrawler()
 if __name__ == "__main__": 
     app=QApplication(sys.argv)
     w=gui()
-    sys.exit(app.exec_())
+    #sys.exit(app.exec_())
     
     print("1.카테고리 별 크롤링(정치,경제,사회,생활문화...) 2.언론사별 크롤링 3.키워드 크롤링(약간의 오류가 존재)")
     select = int(input())
