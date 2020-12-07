@@ -345,6 +345,7 @@ class gui(QWidget):
         cat=0
         press=0
         num=0
+        searchWord=""#option3
         keyword=""
 
     def initUI(self):
@@ -516,6 +517,8 @@ class gui(QWidget):
         if num:
             self.num=int(num)
     def searchChanged(self, key):
+        self.searchWord=key
+    def keyChanged(self, key):
         self.keyword=key
     def btn1Clicked(self):
         if self.cat == 1 :
@@ -547,11 +550,24 @@ class gui(QWidget):
             value=(Crawler.num/(len(Crawler.made_urls)-1))*100
             self.pbar.setValue(value)
         if value==100 :
-            self.searchLabel=QLabel('')
+            self.keyLabel=QLabel('검색할 키워드: ')
+            self.keyLabel.move(50, 320)
+            self.keyEdit=QLineEdit(self)
+            self.keyEdit.move(168, 318)
+            self.keyEdit.textChanged[str].connect(self.keyChanged)
     def btn4Clicked(self):
         value=(Crawler.num/(self.num-1))*100
-        print("value"+str(value)+"num"+str(Crawler.num))
         self.pbar.setValue(value)
+        if value==100 :
+            self.keyLabel=QLabel('검색할 키워드: ', self)
+            self.keyLabel.move(50, 400)
+            self.keyEdit=QLineEdit(self)
+            self.keyEdit.move(168, 398)
+            self.keyEdit.textChanged[str].connect(self.keyChanged)
+            self.keyLabel.show()
+            self.keyEdit.show()
+
+            
     def btn5Clicked(self):
         x=crawler3(self)
         x.start()
@@ -566,7 +582,7 @@ class crawler2(QThread):
         Crawler.press_crawling(oid = w.oid, aid = w.num, name = w.name)
 class crawler3(QThread):
     def run(self):
-        Crawler.Keyword_crawling(keyword = w.keyword)
+        Crawler.Keyword_crawling(keyword = w.searchWord)
         
 Crawler = ArticleCrawler()
 if __name__ == "__main__": 
