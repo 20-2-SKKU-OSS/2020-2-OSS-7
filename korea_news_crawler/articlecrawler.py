@@ -360,13 +360,16 @@ class gui(QWidget):
         self.rbtn1=QRadioButton('카테고리별 크롤링', self)
         self.rbtn2=QRadioButton('언론사별 크롤링', self)
         self.rbtn3=QRadioButton('키워드 크롤링', self)
+        self.rbtn4=QRadioButton('파일 정렬하기', self)
         self.rbtn1.setChecked(True)
         self.rbtn1.move(50, 70)
         self.rbtn2.move(250, 70)
         self.rbtn3.move(450, 70)
+        self.rbtn4.move(650, 70)
         self.rbtn1.clicked.connect(self.onClicked)
         self.rbtn2.clicked.connect(self.onClicked)
         self.rbtn3.clicked.connect(self.onClicked)
+        self.rbtn4.clicked.connect(self.onClicked)
         
         self.catLabel=QLabel('1. 정치  2. 경제  3. 사회  4. 생활문화  5. 세계  6. IT과학  7. 오피니언', self)
         self.catLabel.move(50, 100)
@@ -461,6 +464,8 @@ class gui(QWidget):
 
         self.option3=[self.searchLabel, self.searchEdit, self.btn5]
 
+        self.option4=[]
+
         for option in self.option2:
             option.hide()
         self.resize(1100, 800)
@@ -475,6 +480,8 @@ class gui(QWidget):
                 option.show()
             for option in self.option3:
                 option.hide()
+            for option in self.option4:
+                option.hide()
             self.pbar.show()
             self.pbar.setGeometry(50, 270, 400, 30)
         if self.rbtn2.isChecked():
@@ -486,6 +493,8 @@ class gui(QWidget):
                 option.show()
             for option in self.option3:
                 option.hide()
+            for option in self.option4:
+                option.hide()
         if self.rbtn3.isChecked():
             self.pbar.hide()
             for option in self.option1:
@@ -493,6 +502,18 @@ class gui(QWidget):
             for option in self.option2:
                 option.hide()
             for option in self.option3:
+                option.show()
+            for option in self.option4:
+                option.hide()
+        if self.rbtn4.isChecked():
+            self.pbar.hide()
+            for option in self.option1:
+                option.hide()
+            for option in self.option2:
+                option.hide()
+            for option in self.option3:
+                option.hide()
+            for option in self.option4:
                 option.show()
     
     def catChanged(self, num):
