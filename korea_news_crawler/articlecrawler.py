@@ -549,6 +549,9 @@ class gui(QWidget):
                 option.hide()
         if self.rbtn4.isChecked():
             self.pbar.hide()
+            self.keyLabel.hide()
+            self.keyEdit.hide()
+            self.keyButton.hide()
             for option in self.option1:
                 option.hide()
             for option in self.option2:
