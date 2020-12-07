@@ -448,6 +448,7 @@ class gui(QWidget):
         self.searchLabel.hide()
         self.searchEdit=QLineEdit(self)
         self.searchEdit.move(168, 128)
+        self.searchEdit.hide()
         #self.searchEdit.textChanged[str].connect(self.searchChanged)
 
         self.option3=[self.searchLabel, self.searchEdit]
