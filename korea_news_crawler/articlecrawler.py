@@ -345,6 +345,7 @@ class gui(QWidget):
         cat=0
         press=0
         num=0
+        searchWord=""#option3
         keyword=""
 
     def initUI(self):
@@ -358,14 +359,17 @@ class gui(QWidget):
 
         self.rbtn1=QRadioButton('카테고리별 크롤링', self)
         self.rbtn2=QRadioButton('언론사별 크롤링', self)
-        self.rbtn3=QRadioButton('키워드 검색', self)
+        self.rbtn3=QRadioButton('키워드 크롤링', self)
+        self.rbtn4=QRadioButton('파일 정렬하기', self)
         self.rbtn1.setChecked(True)
         self.rbtn1.move(50, 70)
         self.rbtn2.move(250, 70)
         self.rbtn3.move(450, 70)
+        self.rbtn4.move(650, 70)
         self.rbtn1.clicked.connect(self.onClicked)
         self.rbtn2.clicked.connect(self.onClicked)
         self.rbtn3.clicked.connect(self.onClicked)
+        self.rbtn4.clicked.connect(self.onClicked)
         
         self.catLabel=QLabel('1. 정치  2. 경제  3. 사회  4. 생활문화  5. 세계  6. IT과학  7. 오피니언', self)
         self.catLabel.move(50, 100)
@@ -444,7 +448,7 @@ class gui(QWidget):
         self.btn4.clicked.connect(self.btn4Clicked)
         self.option2=[self.pressLabel, self.selectLabel2, self.pressEdit, self.numLabel, self.numEdit, self.btn2, self.btn4]
         
-        self.searchLabel=QLabel('검색할 키워드 : ', self)
+        self.searchLabel=QLabel('크롤링할 키워드 : ', self)
         self.searchLabel.move(50, 130)
         self.searchLabel.hide()
         self.searchEdit=QLineEdit(self)
@@ -460,6 +464,8 @@ class gui(QWidget):
 
         self.option3=[self.searchLabel, self.searchEdit, self.btn5]
 
+        self.option4=[]
+
         for option in self.option2:
             option.hide()
         self.resize(1100, 800)
@@ -474,6 +480,8 @@ class gui(QWidget):
                 option.show()
             for option in self.option3:
                 option.hide()
+            for option in self.option4:
+                option.hide()
             self.pbar.show()
             self.pbar.setGeometry(50, 270, 400, 30)
         if self.rbtn2.isChecked():
@@ -485,6 +493,8 @@ class gui(QWidget):
                 option.show()
             for option in self.option3:
                 option.hide()
+            for option in self.option4:
+                option.hide()
         if self.rbtn3.isChecked():
             self.pbar.hide()
             for option in self.option1:
@@ -492,6 +502,18 @@ class gui(QWidget):
             for option in self.option2:
                 option.hide()
             for option in self.option3:
+                option.show()
+            for option in self.option4:
+                option.hide()
+        if self.rbtn4.isChecked():
+            self.pbar.hide()
+            for option in self.option1:
+                option.hide()
+            for option in self.option2:
+                option.hide()
+            for option in self.option3:
+                option.hide()
+            for option in self.option4:
                 option.show()
     
     def catChanged(self, num):
@@ -516,6 +538,8 @@ class gui(QWidget):
         if num:
             self.num=int(num)
     def searchChanged(self, key):
+        self.searchWord=key
+    def keyChanged(self, key):
         self.keyword=key
     def btn1Clicked(self):
         if self.cat == 1 :
@@ -544,13 +568,46 @@ class gui(QWidget):
         
     def btn3Clicked(self):
         if len(Crawler.made_urls) !=0 :
-            value=(Crawler.num/len(Crawler.made_urls))*100
+            value=(Crawler.num/(len(Crawler.made_urls)-1))*100
             self.pbar.setValue(value)
+        if value==100 :
+            self.keyLabel=QLabel('검색할 키워드: ')
+            self.keyLabel.move(50, 320)
+            self.keyEdit=QLineEdit(self)
+            self.keyEdit.move(168, 318)
+            self.keyEdit.textChanged[str].connect(self.keyChanged)
+            self.keyLabel.show()
+            self.keyEdit.show()
+
+            self.keyButton=QPushButton(self)
+            self.keyButton.setText("검색 시작")
+            self.keyButton.move(370, 318)
+            self.keyButton.clicked.connect(self.keyClicked)
+            self.keyButton.show()
+
     def btn4Clicked(self):
-        value=(Crawler.num/self.num)*100
+        value=(Crawler.num/(self.num-1))*100
         self.pbar.setValue(value)
+        if value==100 :
+            self.keyLabel=QLabel('검색할 키워드: ', self)
+            self.keyLabel.move(50, 400)
+            self.keyEdit=QLineEdit(self)
+            self.keyEdit.move(168, 398)
+            self.keyEdit.textChanged[str].connect(self.keyChanged)
+            self.keyLabel.show()
+            self.keyEdit.show()
+
+            self.keyButton=QPushButton(self)
+            self.keyButton.setText("검색 시작")
+            self.keyButton.move(370, 398)
+            self.keyButton.clicked.connect(self.keyClicked)
+            self.keyButton.show()
+
     def btn5Clicked(self):
         x=crawler3(self)
+        x.start()
+    def keyClicked(self):
+        x=searching(self)
         x.start()
 
     
@@ -563,7 +620,10 @@ class crawler2(QThread):
         Crawler.press_crawling(oid = w.oid, aid = w.num, name = w.name)
 class crawler3(QThread):
     def run(self):
-        Crawler.Keyword_crawling(keyword = w.keyword)
+        Crawler.Keyword_crawling(keyword = w.searchWord)
+class searching(QThread):
+    def run(self):
+        Crawler.keyword_search(keyword=w.keyword)
         
 Crawler = ArticleCrawler()
 if __name__ == "__main__": 
