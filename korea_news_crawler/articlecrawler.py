@@ -454,8 +454,9 @@ class gui(QWidget):
 
         self.btn5=QPushButton(self)
         self.btn5.setText("검색 시작")
-        self.btn5.move(50, 250)
+        self.btn5.move(50, 200)
         self.btn5.clicked.connect(self.btn5Clicked)
+        self.btn5.hide()
 
         self.option3=[self.searchLabel, self.searchEdit, self.btn5]
 
@@ -473,8 +474,10 @@ class gui(QWidget):
                 option.show()
             for option in self.option3:
                 option.hide()
+            self.pbar.show()
             self.pbar.setGeometry(50, 270, 400, 30)
         if self.rbtn2.isChecked():
+            self.pbar.show()
             self.pbar.setGeometry(50, 300, 400, 30)
             for option in self.option1:
                 option.hide()
@@ -548,7 +551,8 @@ class gui(QWidget):
         value=(Crawler.num/self.num)*100
         self.pbar.setValue(value)
     def btn5Clicked(self):
-        Crawler.Keyword_crawling(keyword = self.keyword)
+        x=crawler3(self)
+        x.start()
 
     
 
@@ -558,6 +562,9 @@ class crawler1(QThread):
 class crawler2(QThread):
     def run(self):
         Crawler.press_crawling(oid = w.oid, aid = w.num, name = w.name)
+class crawler3(QThread):
+    def run(self):
+        Crawler.Keyword_crawling(keyword = w.keyword)
         
 Crawler = ArticleCrawler()
 if __name__ == "__main__": 
