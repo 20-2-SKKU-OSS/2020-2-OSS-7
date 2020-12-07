@@ -555,6 +555,15 @@ class gui(QWidget):
             self.keyEdit=QLineEdit(self)
             self.keyEdit.move(168, 318)
             self.keyEdit.textChanged[str].connect(self.keyChanged)
+            self.keyLabel.show()
+            self.keyEdit.show()
+
+            self.keyButton=QPushButton(self)
+            self.keyButton.setText("검색 시작")
+            self.keyButton.move(370, 318)
+            self.keyButton.clicked.connect(self.keyClicked)
+            self.keyButton.show()
+
     def btn4Clicked(self):
         value=(Crawler.num/(self.num-1))*100
         self.pbar.setValue(value)
@@ -567,9 +576,17 @@ class gui(QWidget):
             self.keyLabel.show()
             self.keyEdit.show()
 
-            
+            self.keyButton=QPushButton(self)
+            self.keyButton.setText("검색 시작")
+            self.keyButton.move(370, 398)
+            self.keyButton.clicked.connect(self.keyClicked)
+            self.keyButton.show()
+
     def btn5Clicked(self):
         x=crawler3(self)
+        x.start()
+    def keyClicked(self):
+        x=searching(self)
         x.start()
 
     
@@ -583,6 +600,9 @@ class crawler2(QThread):
 class crawler3(QThread):
     def run(self):
         Crawler.Keyword_crawling(keyword = w.searchWord)
+class searching(QThread):
+    def run(self):
+        Crawler.keyword_search(keyword=w.keyword)
         
 Crawler = ArticleCrawler()
 if __name__ == "__main__": 
