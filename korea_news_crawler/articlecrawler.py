@@ -350,12 +350,12 @@ class gui(QWidget):
         num=0
         searchWord=""#option3
         keyword=""
-        a=0
-        b=""
-        c=1
-        d="y"
-        e="y"
-        f=""
+        self.a=''
+        self.b=''
+        self.c=''
+        self.d='y'
+        self.e='y'
+        self.shown=False
 
     def initUI(self):
         self.Crawler = ArticleCrawler()
@@ -493,19 +493,19 @@ class gui(QWidget):
         self.dEdit=QLineEdit(self)
         self.dEdit.move(50, 320)
         self.dEdit.textChanged[str].connect(self.dChanged)
-        self.eLabel=QLabel('파일명은 result.csv파일로 저장됩니다. 다른 이름을 원하시면 n을 입력해주세요.(y/n)', self)
+        self.eLabel=QLabel('파일명은 result.csv파일로 저장됩니다.', self)
         self.eLabel.move(50, 350)
-        self.eEdit=QLineEdit(self)
-        self.eEdit.move(50, 380)
-        self.eEdit.textChanged[str].connect(self.eChanged)
+        #self.eEdit=QLineEdit(self)
+        #self.eEdit.move(50, 380)
+        #self.eEdit.textChanged[str].connect(self.eChanged)
 
         self.sortBtn=QPushButton(self)
         self.sortBtn.setText('정렬 시작')
-        self.sortBtn.move(50, 410)
+        self.sortBtn.move(50, 380)
         self.sortBtn.clicked.connect(self.sortClicked)
         
         self.option4=[self.aLabel, self.aEdit, self.bLabel, self.bEdit, self.cLabel, self.cEdit,\
-            self.dLabel, self.dEdit, self.eLabel, self.eEdit, self.sortBtn]
+            self.dLabel, self.dEdit, self.eLabel, self.sortBtn]
         for option in self.option2:
             option.hide()
         for option in self.option4:
@@ -549,9 +549,11 @@ class gui(QWidget):
                 option.hide()
         if self.rbtn4.isChecked():
             self.pbar.hide()
-            self.keyLabel.hide()
-            self.keyEdit.hide()
-            self.keyButton.hide()
+            if self.shown:
+                self.keyLabel.hide()
+                self.keyEdit.hide()
+                self.keyButton.hide()
+                self.shown=False
             for option in self.option1:
                 option.hide()
             for option in self.option2:
@@ -640,6 +642,7 @@ class gui(QWidget):
             self.keyButton.move(370, 318)
             self.keyButton.clicked.connect(self.keyClicked)
             self.keyButton.show()
+            self.shown=True
 
     def btn4Clicked(self):
         value=(Crawler.num/(self.num-1))*100
@@ -658,6 +661,7 @@ class gui(QWidget):
             self.keyButton.move(370, 398)
             self.keyButton.clicked.connect(self.keyClicked)
             self.keyButton.show()
+            self.shown=True
 
     def btn5Clicked(self):
         x=crawler3(self)
@@ -684,7 +688,7 @@ class searching(QThread):
         Crawler.keyword_search(keyword=w.keyword)
 class sorting(QThread):
     def run(self):
-        sorting(self.a, self.b, self.c, self.d, 'y')
+        sorting(2, 'Article_더팩트40_', 1,'y','y')
         
 Crawler = ArticleCrawler()
 if __name__ == "__main__": 
@@ -747,83 +751,3 @@ if __name__ == "__main__":
     Crawler.set_category(ss1)
     #Crawler.press_crawling()
 
-'''
-def sorting(a, b, c, d, e):
-    #a=int(input("어느 크롤러로 크롤링한 csv파일인가요?\n1번 2번\n"))
-    a = int(a)
-    #2번 크롤러를 선택했을 때
-    if a == 2:
-	    #b=input("파일명을 입력해주세요:")
-	    #df1=pd.read_csv('Article_10_문화일보.csv', names=['A','B','C','D'])
-	    df1 = pd.read_csv(b, names=['A', 'B', 'C', 'D'])
-	    print(df1)
-        c=int(c)
-	    #c=int(input('어떻게 정렬할까요? \n1.오래된 순으로 정렬\n2.최신순으로 정렬\n'))
-
-        if c==1:
-		    df2=df1.sort_values(by=['D'])
-		    df2=df2.reset_index(drop=True)
-		    print(df2)
-		    #d=input('위와 같이 정렬된 파일을 저장하시겠습니까?(y/n)')
-		    if(d=='y'):
-			    #e=input('파일명은 result.csv파일로 저장됩니다. 다른 이름을 원하시면 n을 눌러주세요.(y/n)')
-			    if(e=='y'):		
-				    df2.to_csv("result.csv")
-				    print('저장이 완료되었습니다.')
-			    if(e=='n'):
-				    f=input('파일명을 입력해주세요: ')
-				    df2.to_csv(f)
-				    print('저장이 완료되었습니다.')
-        if(c==2):
-		    df2=df1.sort_values(by=['D'],ascending=[False])
-		    df2=df2.reset_index(drop=True)
-		    print(df2)
-		    #d=input('위와 같이 정렬된 파일을 저장하시겠습니까?(y/n)')
-		    if(d=='y'):
-			    #e=input('파일명은 result.csv파일로 저장됩니다. 다른 이름을 원하시면 n을 눌러주세요.(y/n)')
-			    if(e=='y'):		
-				    df2.to_csv("result.csv")
-				    print('저장이 완료되었습니다.')
-			    if(e=='n'):
-				    f=input('파일명을 입력해주세요: ')
-				    df2.to_csv(f)
-				    print('저장이 완료되었습니다.')
-    #1번 크롤러를 선택했을 때 
-    if(a==1):
-	    #b=input("파일명을 입력해주세요:")
-	    #df1=pd.read_csv('Article_오피니언_202009_202009.csv',names=['A','B','C','D','E','F'])
-	    df1=pd.read_csv(b, names=['A','B','C','D','E','F'])
-	    print(df1)
-	    #c=int(input('어떻게 정렬할까요? \n1.오래된 순으로 정렬\n2.최신순으로 정렬\n'))
-        c=int(c)
-        if(c==1):
-            df2=df1.sort_values(by=['A'])
-		    df2=df2.reset_index(drop=True)
-		    print(df2)
-		    #d=input('위와 같이 정렬된 파일을 저장하시겠습니까?(y/n)')
-		    if(d=='y'):
-			    #e=input('파일명은 result.csv파일로 저장됩니다. 다른 이름을 원하시면 n을 눌러주세요.(y/n)')
-			    if(e=='y'):		
-				    df2.to_csv("result.csv")
-				    print('저장이 완료되었습니다.')
-			    if(e=='n'):
-				    f=input('파일명을 입력해주세요: ')
-				    df2.to_csv(f)
-				    print('저장이 완료되었습니다.')
-
-	    if(c==2):
-		    df2=df1.sort_values(by=['A'],ascending=[False])
-		    df2=df2.reset_index(drop=True)
-		    print(df2)
-		    #d=input('위와 같이 정렬된 파일을 저장하시겠습니까?(y/n)')
-		    if(d=='y'):
-			    #e=input('파일명은 result.csv파일로 저장됩니다. 다른 이름을 원하시면 n을 눌러주세요.(y/n)')
-			    if(e=='y'):		
-				    df2.to_csv("result.csv")
-				    print('저장이 완료되었습니다.')
-			    if(e=='n'):
-				    f=input('파일명을 입력해주세요: ')
-				    df2.to_csv(f)
-				    print('저장이 완료되었습니다.')
-
-'''
