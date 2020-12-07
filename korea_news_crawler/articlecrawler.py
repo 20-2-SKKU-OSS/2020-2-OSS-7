@@ -534,7 +534,6 @@ class gui(QWidget):
             ss1 = "오피니언"
         Crawler.set_category(ss1)
         Crawler.set_date_range(self.startYear, self.startMonth, self.endYear, self.endMonth)
-        #self.Crawler.start()
         x=crawler1(self)
         x.start()
         
