@@ -284,7 +284,7 @@ class ArticleCrawler(object):
         self.writer.keyword_search(keyword)
 
 
-    def Keyword_crawling(self):
+    def Keyword_crawling(self,keyword):
         headers = {'User-Agent':'Mozilla/5.0'}
         url = 'https://search.naver.com/search.naver?sm=tab_hty.top&where=news&query='
         url = url + keyword
@@ -330,7 +330,7 @@ class ArticleCrawler(object):
                 article_info = document.find_all('div',{'class':'info'})
                 writer.wcsv.writerow([headline,text_sentence,url_a])
 
-            self.crawling(category_name)
+            
 
 
 class gui(QWidget):  
