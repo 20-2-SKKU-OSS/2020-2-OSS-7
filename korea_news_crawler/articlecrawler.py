@@ -256,7 +256,8 @@ class ArticleCrawler(object):
                     #===================================================
                     if headline == '':
                         headline = '-'
-                    writer.wcsv.writerow([headline,text_sentence,url1,iTime])
+                    print(headline)
+                    writer.wcsv.writerow([headline,'\t',text_sentence,'\t',url1,'\t',iTime])
             print()
         writer.close()
 
@@ -327,6 +328,8 @@ class ArticleCrawler(object):
                 tag_headline = document.find_all('h4', {'class':'title'})
                 if(len(tag_headline) != 0):
                     headline = headline + ArticleParser.clear_headline(str(tag_headline[0].find_all(text=True)))
+                if headline == '':
+                    headline = '-'
                 article_info = document.find_all('div',{'class':'info'})
                 writer.wcsv.writerow([headline,text_sentence,url_a])
 
