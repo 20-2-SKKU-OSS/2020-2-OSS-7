@@ -358,7 +358,7 @@ class gui(QWidget):
 
         self.rbtn1=QRadioButton('카테고리별 크롤링', self)
         self.rbtn2=QRadioButton('언론사별 크롤링', self)
-        self.rbtn3=QRadioButton('키워드 검색', self)
+        self.rbtn3=QRadioButton('키워드 크롤링', self)
         self.rbtn1.setChecked(True)
         self.rbtn1.move(50, 70)
         self.rbtn2.move(250, 70)
@@ -444,7 +444,7 @@ class gui(QWidget):
         self.btn4.clicked.connect(self.btn4Clicked)
         self.option2=[self.pressLabel, self.selectLabel2, self.pressEdit, self.numLabel, self.numEdit, self.btn2, self.btn4]
         
-        self.searchLabel=QLabel('검색할 키워드 : ', self)
+        self.searchLabel=QLabel('크롤링할 키워드 : ', self)
         self.searchLabel.move(50, 130)
         self.searchLabel.hide()
         self.searchEdit=QLineEdit(self)
@@ -544,10 +544,13 @@ class gui(QWidget):
         
     def btn3Clicked(self):
         if len(Crawler.made_urls) !=0 :
-            value=(Crawler.num/len(Crawler.made_urls))*100
+            value=(Crawler.num/(len(Crawler.made_urls)-1))*100
             self.pbar.setValue(value)
+        if value==100 :
+            self.searchLabel=QLabel('')
     def btn4Clicked(self):
-        value=(Crawler.num/self.num)*100
+        value=(Crawler.num/(self.num-1))*100
+        print("value"+str(value)+"num"+str(Crawler.num))
         self.pbar.setValue(value)
     def btn5Clicked(self):
         x=crawler3(self)
