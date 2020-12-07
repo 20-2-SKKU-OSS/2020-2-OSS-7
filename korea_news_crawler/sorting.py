@@ -1,3 +1,4 @@
+
 def sorting(a, b, c, d, e):
 	#a=int(input("어느 크롤러로 크롤링한 csv파일인가요?\n1번 2번\n"))
 	a = int(a)
