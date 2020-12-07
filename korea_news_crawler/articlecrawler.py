@@ -425,9 +425,9 @@ class gui(QWidget):
         num=0
         searchWord=""#option3
         keyword=""
-        self.a=''
+        self.a=0
         self.b=''
-        self.c=''
+        self.c=1
         self.d='y'
         self.e='y'
         self.shown=False
@@ -536,7 +536,7 @@ class gui(QWidget):
         self.searchLabel.move(50, 130)
         self.searchLabel.hide()
         self.searchEdit=QLineEdit(self)
-        self.searchEdit.move(168, 128)
+        self.searchEdit.move(175, 128)
         self.searchEdit.hide()
         self.searchEdit.textChanged[str].connect(self.searchChanged)
 
@@ -548,7 +548,7 @@ class gui(QWidget):
 
         self.option3=[self.searchLabel, self.searchEdit, self.btn5]
 
-        self.aLabel=QLabel('사용한 크롤러 선택', self)
+        self.aLabel=QLabel('사용한 크롤러 선택(1: 카테고리별 크롤링, 2: 언론사별 크롤링)', self)
         self.aLabel.move(50, 110)
         self.aEdit=QLineEdit(self)
         self.aEdit.move(50, 140)#connect
@@ -569,7 +569,7 @@ class gui(QWidget):
         self.dEdit.move(50, 320)
         self.dEdit.textChanged[str].connect(self.dChanged)
         self.eLabel=QLabel('파일명은 result.csv파일로 저장됩니다.', self)
-        self.eLabel.move(50, 350)
+        self.eLabel.move(50, 355)
         #self.eEdit=QLineEdit(self)
         #self.eEdit.move(50, 380)
         #self.eEdit.textChanged[str].connect(self.eChanged)
@@ -639,11 +639,11 @@ class gui(QWidget):
                 option.show()
     
     def aChanged(self, num):
-        self.a=num
+        self.a=int(num)
     def bChanged(self, num):
         self.b=num
     def cChanged(self, num):
-        self.c=num
+        self.c=int(num)
     def dChanged(self, num):
         self.d=num
     def eChanged(self, num):
@@ -763,7 +763,7 @@ class searching(QThread):
         Crawler.keyword_search(keyword=w.keyword)
 class sorting(QThread):
     def run(self):
-        Crawler.sorting(a=2, b='Article_더팩트40_.csv', c=2, d='y', e='y')
+        Crawler.sorting(a=w.a, b=w.b, c=w.c, d=w.d, e=w.e)
         
 Crawler = ArticleCrawler()
 if __name__ == "__main__": 
