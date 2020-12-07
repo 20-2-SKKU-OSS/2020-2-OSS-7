@@ -345,6 +345,7 @@ class gui(QWidget):
         cat=0
         press=0
         num=0
+        keyword=""
 
     def initUI(self):
         self.Crawler = ArticleCrawler()
@@ -449,9 +450,14 @@ class gui(QWidget):
         self.searchEdit=QLineEdit(self)
         self.searchEdit.move(168, 128)
         self.searchEdit.hide()
-        #self.searchEdit.textChanged[str].connect(self.searchChanged)
+        self.searchEdit.textChanged[str].connect(self.searchChanged)
 
-        self.option3=[self.searchLabel, self.searchEdit]
+        self.btn5=QPushButton(self)
+        self.btn5.setText("검색 시작")
+        self.btn5.move(50, 250)
+        self.btn5.clicked.connect(self.btn5Clicked)
+
+        self.option3=[self.searchLabel, self.searchEdit, self.btn5]
 
         for option in self.option2:
             option.hide()
@@ -506,6 +512,8 @@ class gui(QWidget):
     def numChanged(self, num):
         if num:
             self.num=int(num)
+    def searchChanged(self, key):
+        self.keyword=key
     def btn1Clicked(self):
         if self.cat == 1 :
             ss1 = "정치"
@@ -539,6 +547,8 @@ class gui(QWidget):
     def btn4Clicked(self):
         value=(Crawler.num/self.num)*100
         self.pbar.setValue(value)
+    def btn5Clicked(self):
+        Crawler.Keyword_crawling(keyword = self.keyword)
 
     
 
