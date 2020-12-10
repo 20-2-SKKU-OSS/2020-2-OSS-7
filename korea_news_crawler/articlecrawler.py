@@ -3,16 +3,19 @@
 
 from time import sleep
 from bs4 import BeautifulSoup
-from tqdm import tqdm, tqdm_gui
+import threading
+from tqdm import tqdm
 from tqdm import trange
 from multiprocessing import Process
 from PyQt5.QtWidgets import * #QApplication, QWidget, QLabel, QTextEdit
+from PyQt5.QtCore import pyqtSignal, QThread
 
-from .exceptions import *
-from .articleparser import ArticleParser
-from .writer import Writer
-
-from .writer1 import Writer_press
+from exceptions import *
+from articleparser import ArticleParser
+from writer import Writer
+from writer1 import Writer_press
+from sorting import sorting
+import pandas as pd
 import sys
 import os
 import platform
@@ -20,7 +23,7 @@ import calendar
 import requests
 import re
 
-def get_oid():
+def get_oid(oid_num):
         oid = ['001','005','009','014','629','018','021','022','047','052','055','065',' 469','088','108','109','117','119','139','144','236','277','311','343','347','356', '382','396','398','410','413','417','421','436','439','442','445','477','450','468']
         name = ["연합뉴스","국민일보","매일경제", "파이낸셜뉴스","더팩트","이데일리","문화일보","세계일보","오마이뉴스","YTN","SBS","점프볼","한국일보","매일신문","스타뉴스",
             "OSEN","마이데일리","데일리안","스포탈코리아","스포츠경향","포모스","아시아경제","엑스포츠뉴스","베스트일레븐","데일리e스포츠","게임메카","스포츠동아","스포츠월드","루키","MK스포츠",
@@ -29,8 +32,8 @@ def get_oid():
         print("\n1.연합뉴스\n2.국민일보\n3.매일경제 \n4.파이낸셜뉴스\n5.더팩트\n6.이데일리\n7.문화일보\n8.세계일보\n9. 오마이뉴스\n10.YTN\n11.SBS\n12.점프볼\n13.한국일보\n14.매일신문\n15.스타뉴스") 
         print("16.OSEN\n17.마이데일리\n18.데일리안\n19.스포탈코리아\n20.스포츠경향\n21.포모스\n22.아시아경제\n23.엑스포츠뉴스\n24.베스트일레븐\n25.데일리e스포츠\n26.게임메카\n27.스포츠동아\n28.스포츠월드\n29.루키\n30.MK스포츠")
         print("31.인터풋볼\n32.머니S\n33.뉴스1\n34.풋볼리스트\n35.디스이즈게임\n36.인벤\n37.윈터뉴스\n38.스포티비뉴스\n39.STN 스포츠\n40.스포츠서울\n")
-        uinput = input("원하는 언론사 번호를 입력하세요: ")
-        oid_num = int(uinput)
+        #uinput = input("원하는 언론사 번호를 입력하세요: ")
+        #oid_num = int(uinput)
         result = oid[oid_num-1]
         return result, name[oid_num-1]
 
@@ -44,6 +47,8 @@ class ArticleCrawler(object):
         self.date = {'start_year': 0, 'start_month': 0, 'end_year': 0, 'end_month': 0}
         self.user_operating_system = str(platform.system())
         self.writer = None
+        self.made_urls = []
+        self.num=0
 
     #크롤링할 카테고리 설정
     def set_category(self, *args):
@@ -68,8 +73,8 @@ class ArticleCrawler(object):
         print(self.date)
 
     @staticmethod
-    def make_news_page_url(category_url, start_year, end_year, start_month, end_month):
-        made_urls = []
+    def make_news_page_url(self, category_url, start_year, end_year, start_month, end_month):
+        
         
         for year in range(start_year, end_year + 1):
             
@@ -105,8 +110,9 @@ class ArticleCrawler(object):
                     totalpage = ArticleParser.find_news_totalpage(url + "&page=10000")
                     
                     for page in range(1, totalpage + 1):
-                        made_urls.append(url + "&page=" + str(page))
-        return made_urls
+                        self.made_urls.append(url + "&page=" + str(page))
+        print("url개수: "+str(len(self.made_urls)))
+        return self.made_urls
 
     @staticmethod
     def get_url_data(url, max_tries=10):
@@ -136,13 +142,13 @@ class ArticleCrawler(object):
         url = "http://news.naver.com/main/list.nhn?mode=LSD&mid=sec&sid1=" + str(self.categories.get(category_name)) + "&date="
 
         # start_year년 start_month월 ~ end_year의 end_month 날짜까지 기사를 수집합니다.
-        day_urls = self.make_news_page_url(url, self.date['start_year'], self.date['end_year'], self.date['start_month'], self.date['end_month'])
+        day_urls = self.make_news_page_url(self, url, self.date['start_year'], self.date['end_year'], self.date['start_month'], self.date['end_month'])
         print(category_name + " Urls are generated")
         print("The crawler starts")
 
 
-
         for URL in tqdm(day_urls,desc="Crawling rate", mininterval=0.01):
+            self.num+=1 
             regex = re.compile("date=(\d+)")
             news_date = regex.findall(URL)[0]
 
@@ -207,6 +213,7 @@ class ArticleCrawler(object):
                     # wcsv.writerow([ex, content_url])
                     del request_content, document_content
                     pass
+                  
         writer.close()
 
     def press_crawling(self, oid, aid, name):
@@ -219,7 +226,7 @@ class ArticleCrawler(object):
 
         oid = 'oid='+ oid
         for i in tqdm(range(1,aid), desc="Crawling rate", mininterval=0.01):
-            #print(i)
+            self.num+=1
             aid = str(i)
             aid_length = len(aid)
             aid = '&aid='+'0'*(10-aid_length) + aid
@@ -250,7 +257,7 @@ class ArticleCrawler(object):
                     #===================================================
                     if headline == '':
                         headline = '-'
-                    writer.wcsv.writerow([headline,text_sentence,url1,iTime])
+                    writer.wcsv.writerow([headline+'\t'+text_sentence+'\t'+url1+'\t'+iTime])
             print()
         writer.close()
 
@@ -272,13 +279,13 @@ class ArticleCrawler(object):
         for category_name in self.selected_categories:
             proc = Process(target=self.crawling, args=(category_name,))
             proc.start()
-            self.crawling(category_name,keyword)
+            self.crawling(category_name)
 
     def keyword_search(self, keyword):
         self.writer.keyword_search(keyword)
 
 
-    def Keyword_crawling(self):
+    def Keyword_crawling(self,keyword):
         headers = {'User-Agent':'Mozilla/5.0'}
         url = 'https://search.naver.com/search.naver?sm=tab_hty.top&where=news&query='
         url = url + keyword
@@ -321,17 +328,94 @@ class ArticleCrawler(object):
                 tag_headline = document.find_all('h4', {'class':'title'})
                 if(len(tag_headline) != 0):
                     headline = headline + ArticleParser.clear_headline(str(tag_headline[0].find_all(text=True)))
+                if headline == '':
+                    headline = '-'
                 article_info = document.find_all('div',{'class':'info'})
-                writer.wcsv.writerow([headline,text_sentence,url_a])
+                writer.wcsv.writerow([headline+'\t'+text_sentence+'\t'+url_a])
+    def sorting(self, a, b, c, d, e):
+        #a=int(input("어느 크롤러로 크롤링한 csv파일인가요?\n1번 2번\n"))
+        a = int(a)
+        #2번 크롤러를 선택했을 때
+        if a == 2:
+            
+            df1 = pd.read_csv(b, names=['A', 'B', 'C', 'D'])
+            print(df1)
+            #c=int(input('어떻게 정렬할까요? \n1.오래된 순으로 정렬\n2.최신순으로 정렬\n'))
+            c=int(c)
+            if(c == 1):
+                df2=df1.sort_values(by=['D'])
+                df2=df2.reset_index(drop=True)
+                print(df2)
+                #d=input('위와 같이 정렬된 파일을 저장하시겠습니까?(y/n)')
+                if(d=='y'):
+                    #e=input('파일명은 result.csv파일로 저장됩니다. 다른 이름을 원하시면 n을 눌러주세요.(y/n)')
+                    if(e=='y'):		
+                        df2.to_csv("result.csv")
+                        print('저장이 완료되었습니다.')
+                    if(e=='n'):
+                        f=input('파일명을 입력해주세요: ')
+                        df2.to_csv(f)
+                        print('저장이 완료되었습니다.')
+            if(c==2):
+                df2=df1.sort_values(by=['D'],ascending=[False])
+                df2=df2.reset_index(drop=True)
+                print(df2)
+                #d=input('위와 같이 정렬된 파일을 저장하시겠습니까?(y/n)')
+                if(d=='y'):
+                    #e=input('파일명은 result.csv파일로 저장됩니다. 다른 이름을 원하시면 n을 눌러주세요.(y/n)')
+                    if(e=='y'):		
+                        df2.to_csv("result.csv")
+                        print('저장이 완료되었습니다.')
+                    if(e=='n'):
+                        f=input('파일명을 입력해주세요: ')
+                        df2.to_csv(f)
+                        print('저장이 완료되었습니다.')
+        #1번 크롤러를 선택했을 때 
+        if a==1:
+            #b=input("파일명을 입력해주세요:")
+            #df1=pd.read_csv('Article_오피니언_202009_202009.csv',names=['A','B','C','D','E','F'])
+            df1=pd.read_csv(b, names=['A','B','C','D','E','F'])
+            print(df1)
+            #c=int(input('어떻게 정렬할까요? \n1.오래된 순으로 정렬\n2.최신순으로 정렬\n'))
+            c=int(c)
+            if(c==1):
+                df2=df1.sort_values(by=['A'])
+                df2=df2.reset_index(drop=True)
+                print(df2)
+                #d=input('위와 같이 정렬된 파일을 저장하시겠습니까?(y/n)')
+                if(d=='y'):
+                    #e=input('파일명은 result.csv파일로 저장됩니다. 다른 이름을 원하시면 n을 눌러주세요.(y/n)')
+                    if(e=='y'):		
+                        df2.to_csv("result.csv")
+                        print('저장이 완료되었습니다.')
+                    if(e=='n'):
+                        f=input('파일명을 입력해주세요: ')
+                        df2.to_csv(f)
+                        print('저장이 완료되었습니다.')
 
-            self.crawling(category_name)
+            if(c==2):
+                df2=df1.sort_values(by=['A'],ascending=[False])
+                df2=df2.reset_index(drop=True)
+                print(df2)
+                #d=input('위와 같이 정렬된 파일을 저장하시겠습니까?(y/n)')
+                if(d=='y'):
+                    #e=input('파일명은 result.csv파일로 저장됩니다. 다른 이름을 원하시면 n을 눌러주세요.(y/n)')
+                    if(e=='y'):		
+                        df2.to_csv("result.csv")
+                        print('저장이 완료되었습니다.')
+                    if(e=='n'):
+                        f=input('파일명을 입력해주세요: ')
+                        df2.to_csv(f)
+                        print('저장이 완료되었습니다.')
+
+            
 
 
 class gui(QWidget):  
     def __init__(self):
         super().__init__()
         self.initUI()
-        self.Crawler = ArticleCrawler()
+        #th=update()
         startYear=0
         startMonth=0
         endYear=0
@@ -339,8 +423,17 @@ class gui(QWidget):
         cat=0
         press=0
         num=0
+        searchWord=""#option3
+        keyword=""
+        self.a=0
+        self.b=''
+        self.c=1
+        self.d='y'
+        self.e='y'
+        self.shown=False
 
     def initUI(self):
+        self.Crawler = ArticleCrawler()
         label0=QLabel('크롤러를 설정해주세요.', self)
         label0.move(50, 30)
         font0=label0.font()
@@ -350,12 +443,17 @@ class gui(QWidget):
 
         self.rbtn1=QRadioButton('카테고리별 크롤링', self)
         self.rbtn2=QRadioButton('언론사별 크롤링', self)
+        self.rbtn3=QRadioButton('키워드 크롤링', self)
+        self.rbtn4=QRadioButton('파일 정렬하기', self)
         self.rbtn1.setChecked(True)
         self.rbtn1.move(50, 70)
         self.rbtn2.move(250, 70)
+        self.rbtn3.move(450, 70)
+        self.rbtn4.move(650, 70)
         self.rbtn1.clicked.connect(self.onClicked)
         self.rbtn2.clicked.connect(self.onClicked)
-        
+        self.rbtn3.clicked.connect(self.onClicked)
+        self.rbtn4.clicked.connect(self.onClicked)
         
         self.catLabel=QLabel('1. 정치  2. 경제  3. 사회  4. 생활문화  5. 세계  6. IT과학  7. 오피니언', self)
         self.catLabel.move(50, 100)
@@ -398,8 +496,18 @@ class gui(QWidget):
         self.btn1.setText('크롤링 시작')
         self.btn1.move(50, 225)
         self.btn1.clicked.connect(self.btn1Clicked)
+
+        self.btn3=QPushButton(self)
+        self.btn3.setText('진행 상황 업데이트')
+        self.btn3.move(50, 320)
+        self.btn3.clicked.connect(self.btn3Clicked)
+
+        
+        self.pbar=QProgressBar(self)
+        self.pbar.setGeometry(50, 270, 400, 30)
+        
         self.option1=[self.selectLabel1, self. catLabel, self.catEdit, self.timeLabel1, self.timeLabel2, self.timeLabel3, self.timeLabel4,\
-            self.timeEdit1, self.timeEdit2, self.timeEdit3, self.timeEdit4, self.btn1]
+            self.timeEdit1, self.timeEdit2, self.timeEdit3, self.timeEdit4, self.btn1, self.btn3]
 
         self.selectLabel2=QLabel('언론사 선택 : ', self)
         self.selectLabel2.move(50, 180)
@@ -417,10 +525,65 @@ class gui(QWidget):
         self.btn2.setText("크롤링 시작")
         self.btn2.move(50, 250)
         self.btn2.clicked.connect(self.btn2Clicked)
-        self.option2=[self.pressLabel, self.selectLabel2, self.pressEdit, self.numLabel, self.numEdit, self.btn2]
-        
 
+        self.btn4=QPushButton(self)
+        self.btn4.move(50, 350)
+        self.btn4.setText("진행 상황 업데이트")
+        self.btn4.clicked.connect(self.btn4Clicked)
+        self.option2=[self.pressLabel, self.selectLabel2, self.pressEdit, self.numLabel, self.numEdit, self.btn2, self.btn4]
+        
+        self.searchLabel=QLabel('크롤링할 키워드 : ', self)
+        self.searchLabel.move(50, 130)
+        self.searchLabel.hide()
+        self.searchEdit=QLineEdit(self)
+        self.searchEdit.move(175, 128)
+        self.searchEdit.hide()
+        self.searchEdit.textChanged[str].connect(self.searchChanged)
+
+        self.btn5=QPushButton(self)
+        self.btn5.setText("검색 시작")
+        self.btn5.move(50, 200)
+        self.btn5.clicked.connect(self.btn5Clicked)
+        self.btn5.hide()
+
+        self.option3=[self.searchLabel, self.searchEdit, self.btn5]
+
+        self.aLabel=QLabel('사용한 크롤러 선택(1: 카테고리별 크롤링, 2: 언론사별 크롤링)', self)
+        self.aLabel.move(50, 110)
+        self.aEdit=QLineEdit(self)
+        self.aEdit.move(50, 140)#connect
+        self.aEdit.textChanged[str].connect(self.aChanged)
+        self.bLabel=QLabel('파일명을 입력해주세요.', self)
+        self.bLabel.move(50, 170)
+        self.bEdit=QLineEdit(self)
+        self.bEdit.move(50, 200)
+        self.bEdit.textChanged[str].connect(self.bChanged)
+        self.cLabel=QLabel('정렬 기준을 선택해주세요.(1: 오래된 순, 2: 최신 순)', self)
+        self.cLabel.move(50, 230)
+        self.cEdit=QLineEdit(self)
+        self.cEdit.move(50, 260)
+        self.cEdit.textChanged[str].connect(self.cChanged)
+        self.dLabel=QLabel('위와 같이 정렬된 파일을 저장하시겠습니까?(y/n)', self)
+        self.dLabel.move(50, 290)
+        self.dEdit=QLineEdit(self)
+        self.dEdit.move(50, 320)
+        self.dEdit.textChanged[str].connect(self.dChanged)
+        self.eLabel=QLabel('파일명은 result.csv파일로 저장됩니다.', self)
+        self.eLabel.move(50, 355)
+        #self.eEdit=QLineEdit(self)
+        #self.eEdit.move(50, 380)
+        #self.eEdit.textChanged[str].connect(self.eChanged)
+
+        self.sortBtn=QPushButton(self)
+        self.sortBtn.setText('정렬 시작')
+        self.sortBtn.move(50, 380)
+        self.sortBtn.clicked.connect(self.sortClicked)
+        
+        self.option4=[self.aLabel, self.aEdit, self.bLabel, self.bEdit, self.cLabel, self.cEdit,\
+            self.dLabel, self.dEdit, self.eLabel, self.sortBtn]
         for option in self.option2:
+            option.hide()
+        for option in self.option4:
             option.hide()
         self.resize(1100, 800)
         self.setWindowTitle("뉴스 기사 크롤링")
@@ -432,12 +595,60 @@ class gui(QWidget):
                 option.hide()
             for option in self.option1:
                 option.show()
+            for option in self.option3:
+                option.hide()
+            for option in self.option4:
+                option.hide()
+            self.pbar.show()
+            self.pbar.setGeometry(50, 270, 400, 30)
         if self.rbtn2.isChecked():
+            self.pbar.show()
+            self.pbar.setGeometry(50, 300, 400, 30)
             for option in self.option1:
                 option.hide()
             for option in self.option2:
                 option.show()
+            for option in self.option3:
+                option.hide()
+            for option in self.option4:
+                option.hide()
+        if self.rbtn3.isChecked():
+            self.pbar.hide()
+            for option in self.option1:
+                option.hide()
+            for option in self.option2:
+                option.hide()
+            for option in self.option3:
+                option.show()
+            for option in self.option4:
+                option.hide()
+        if self.rbtn4.isChecked():
+            self.pbar.hide()
+            if self.shown:
+                self.keyLabel.hide()
+                self.keyEdit.hide()
+                self.keyButton.hide()
+                self.shown=False
+            for option in self.option1:
+                option.hide()
+            for option in self.option2:
+                option.hide()
+            for option in self.option3:
+                option.hide()
+            for option in self.option4:
+                option.show()
     
+    def aChanged(self, num):
+        self.a=int(num)
+    def bChanged(self, num):
+        self.b=num
+    def cChanged(self, num):
+        self.c=int(num)
+    def dChanged(self, num):
+        self.d=num
+    def eChanged(self, num):
+        self.e=num
+
     def catChanged(self, num):
         if num:
             self.cat=int(num)
@@ -459,6 +670,10 @@ class gui(QWidget):
     def numChanged(self, num):
         if num:
             self.num=int(num)
+    def searchChanged(self, key):
+        self.searchWord=key
+    def keyChanged(self, key):
+        self.keyword=key
     def btn1Clicked(self):
         if self.cat == 1 :
             ss1 = "정치"
@@ -474,20 +689,88 @@ class gui(QWidget):
             ss1 = "IT과학"
         if self.cat == 7 :
             ss1 = "오피니언"
-        self.Crawler.set_category(ss1)
-        self.Crawler.set_date_range(self.startYear, self.startMonth, self.endYear, self.endMonth)
-        self.Crawler.start()
-    def btn2Clicked(self):
-        #self.Crawler.press_crawling()
-        print("2clicked")
+        Crawler.set_category(ss1)
+        Crawler.set_date_range(self.startYear, self.startMonth, self.endYear, self.endMonth)
+        x=crawler1(self)
+        x.start()
         
-            
+    def btn2Clicked(self):
+        self.oid, self.name = get_oid(self.press)
+        x=crawler2(self)
+        x.start()
+        
+    def btn3Clicked(self):
+        if len(Crawler.made_urls) !=0 :
+            value=(Crawler.num/(len(Crawler.made_urls)-1))*100
+            self.pbar.setValue(value)
+        if value==100 :
+            self.keyLabel=QLabel('검색할 키워드: ')
+            self.keyLabel.move(50, 320)
+            self.keyEdit=QLineEdit(self)
+            self.keyEdit.move(168, 318)
+            self.keyEdit.textChanged[str].connect(self.keyChanged)
+            self.keyLabel.show()
+            self.keyEdit.show()
 
+            self.keyButton=QPushButton(self)
+            self.keyButton.setText("검색 시작")
+            self.keyButton.move(370, 318)
+            self.keyButton.clicked.connect(self.keyClicked)
+            self.keyButton.show()
+            self.shown=True
+
+    def btn4Clicked(self):
+        value=(Crawler.num/(self.num-1))*100
+        self.pbar.setValue(value)
+        if value==100 :
+            self.keyLabel=QLabel('검색할 키워드: ', self)
+            self.keyLabel.move(50, 400)
+            self.keyEdit=QLineEdit(self)
+            self.keyEdit.move(168, 398)
+            self.keyEdit.textChanged[str].connect(self.keyChanged)
+            self.keyLabel.show()
+            self.keyEdit.show()
+
+            self.keyButton=QPushButton(self)
+            self.keyButton.setText("검색 시작")
+            self.keyButton.move(370, 398)
+            self.keyButton.clicked.connect(self.keyClicked)
+            self.keyButton.show()
+            self.shown=True
+
+    def btn5Clicked(self):
+        x=crawler3(self)
+        x.start()
+    def keyClicked(self):
+        x=searching(self)
+        x.start()
+    def sortClicked(self):
+        x=sorting(self)
+        x.start()
+    
+
+class crawler1(QThread):
+    def run(self):
+        Crawler.start()
+class crawler2(QThread):
+    def run(self):
+        Crawler.press_crawling(oid = w.oid, aid = w.num, name = w.name)
+class crawler3(QThread):
+    def run(self):
+        Crawler.Keyword_crawling(keyword = w.searchWord)
+class searching(QThread):
+    def run(self):
+        Crawler.keyword_search(keyword=w.keyword)
+class sorting(QThread):
+    def run(self):
+        Crawler.sorting(a=w.a, b=w.b, c=w.c, d=w.d, e=w.e)
+        
+Crawler = ArticleCrawler()
 if __name__ == "__main__": 
     app=QApplication(sys.argv)
     w=gui()
-    sys.exit(app.exec_())
-    Crawler = ArticleCrawler()
+    #sys.exit(app.exec_())
+    
     print("1.카테고리 별 크롤링(정치,경제,사회,생활문화...) 2.언론사별 크롤링 3.키워드 크롤링(약간의 오류가 존재)")
     select = int(input())
     #Crawler.set_category("생활문화")
@@ -542,5 +825,4 @@ if __name__ == "__main__":
     Crawler.set_date_range(a, b, c, d)
     Crawler.set_category(ss1)
     #Crawler.press_crawling()
-    #Crawler.start()
 
